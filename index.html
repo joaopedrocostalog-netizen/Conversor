@@ -23,7 +23,7 @@
 <p class="notice" id="ocrInfo">O OCR identifica o texto localmente e gera um resumo automático por seleção de frases, sem IA. O resumo é uma seleção de trechos do documento, não uma interpretação inteligente; revise os resultados.</p>
 <div class="row"><button id="extract" class="primary">Gerar resumo do PDF</button><button id="downloadText" class="secondary" disabled>Baixar resumo (.txt)</button><button id="resetAnalysis" class="secondary">Remover arquivo</button></div>
 <div class="status" id="analysisStatus" role="status" aria-live="polite"></div>
-<div id="analysisResult" hidden><h3>Resumo automático do PDF (sem IA)</h3><p class="notice">Seleção automática de frases relevantes, com referência às páginas. Pode omitir informações importantes.</p><textarea id="extractedText" rows="11" aria-label="Resumo automático do PDF"></textarea></div>
+<div id="analysisResult" hidden><h3>Resumo automático do PDF (sem IA)</h3><p class="notice">Resumo breve de até 3 frases e aproximadamente 95 palavras, com referências às páginas. Pode omitir informações importantes.</p><textarea id="extractedText" rows="11" aria-label="Resumo automático do PDF"></textarea></div>
 <div class="settings" id="aiSettings" hidden><h3>🚧 OCR + IA — Em manutenção</h3><p>Essa funcionalidade está em manutenção e chegará em breve. Por enquanto, utilize o modo OCR sem IA para gerar um resumo do PDF.</p></div></section>
 <section class="panel" id="panel" hidden><div class="filetag" id="filename"></div><div class="options"><label for="format">Converter para:</label><select id="format"></select></div><p class="notice" id="warning"></p><div class="row"><button class="primary" id="convert">Converter e baixar</button><button class="secondary" id="clear">Remover arquivo</button></div><div class="status" role="status" aria-live="polite" id="status"></div><div class="result" id="result"></div></section>
 <div class="features"><div class="feature"><b>🔒 Privacidade</b><p>Conversões processadas localmente no navegador, sem enviar seu arquivo para um servidor.</p></div><div class="feature"><b>⚡ Fácil e rápido</b><p>Envie, escolha o formato e baixe o arquivo gerado.</p></div><div class="feature"><b>📁 Vários formatos</b><p>Documentos PDF e imagens PNG, JPG e WebP em uma única interface.</p></div></div>
@@ -95,20 +95,21 @@ function syncAI(){const isAI=aiMode();$('aiSettings').hidden=!isAI;$('ocrInfo').
 document.querySelectorAll('input[name="analysisMode"]').forEach(el=>el.addEventListener('change',syncAI));
 $('resetAnalysis').addEventListener('click',clear);
 function createExtractiveSummary(pages){
- const stop=new Set('a o as os e de da do das dos em no na nos nas um uma uns umas para por com sem que se é são foi foram ser ter tem mais mas como ao aos à às ou não seu sua seus suas este esta esse essa isso pelo pela pelos pelas sobre entre já muito também quando onde qual quais porque isso isto há até após'.split(' '));
+ const stop=new Set('a o as os e de da do das dos em no na nos nas um uma uns umas para por com sem que se é são foi foram ser ter tem mais mas como ao aos à às ou não seu sua seus suas este esta esse essa isso pelo pela pelos pelas sobre entre já muito também quando onde qual quais porque isto há até após'.split(' '));
  const sentences=[];
  pages.forEach((page,i)=>{
   const normalized=page.replace(/\r/g,' ').replace(/\n+/g,' ').replace(/\s+/g,' ').trim();
   const parts=normalized.match(/[^.!?;]+(?:[.!?;]+|$)/g)||[];
-  for(const raw of parts){const clean=raw.trim();if(clean.length>=28&&clean.split(/\s+/).length>=5)sentences.push({text:clean,page:i+1,index:sentences.length});}
+  for(const raw of parts){const clean=raw.trim();const count=clean.split(/\s+/).length;if(clean.length>=25&&count>=5&&count<=65)sentences.push({text:clean,page:i+1,index:sentences.length});}
  });
- if(!sentences.length)return pages.map((p,i)=>p.trim()?('[Página '+(i+1)+'] '+p.trim().slice(0,450)):'').filter(Boolean).join('\n\n');
+ if(!sentences.length){const p=pages.find(p=>p.trim());return p?'Resumo breve: '+p.trim().replace(/\s+/g,' ').split(' ').slice(0,50).join(' ')+'…':'Não foi possível gerar um resumo.';}
  const frequencies=new Map();
- for(const entry of sentences){const words=entry.text.toLocaleLowerCase('pt-BR').match(/[\p{L}\p{N}]{3,}/gu)||[];for(const w of words){if(!stop.has(w))frequencies.set(w,(frequencies.get(w)||0)+1)}}
- const target=Math.min(12,Math.max(2,Math.ceil(sentences.length*.20)));
- const ranked=sentences.map((entry,i)=>{const words=(entry.text.toLocaleLowerCase('pt-BR').match(/[\p{L}\p{N}]{3,}/gu)||[]).filter(w=>!stop.has(w));const score=words.reduce((sum,w)=>sum+Math.log(1+(frequencies.get(w)||0)),0)/Math.sqrt(Math.max(words.length,1));return {...entry,score:score+(i===0?1:0)}});
- const chosen=ranked.sort((a,b)=>b.score-a.score).slice(0,target).sort((a,b)=>a.index-b.index);
- return chosen.map(e=>'[Página '+e.page+'] '+e.text).join('\n\n');
+ for(const entry of sentences){const unique=new Set((entry.text.toLocaleLowerCase('pt-BR').match(/[\p{L}\p{N}]{3,}/gu)||[]).filter(w=>!stop.has(w)));for(const w of unique)frequencies.set(w,(frequencies.get(w)||0)+1)}
+ const ranked=sentences.map((entry,i)=>{const words=(entry.text.toLocaleLowerCase('pt-BR').match(/[\p{L}\p{N}]{3,}/gu)||[]).filter(w=>!stop.has(w));const score=words.reduce((sum,w)=>sum+Math.log(1+(frequencies.get(w)||0)),0)/Math.sqrt(Math.max(words.length,1));return {...entry,score:score+(i===0?0.8:0)}});
+ const chosen=[];let wordsUsed=0;
+ for(const e of ranked.sort((a,b)=>b.score-a.score)){const words=e.text.split(/\s+/);if(chosen.length>=3)break;if(wordsUsed+words.length>95)continue;if(chosen.some(c=>{const wa=new Set(c.text.toLowerCase().match(/[\p{L}\p{N}]{4,}/gu)||[]),wb=new Set(e.text.toLowerCase().match(/[\p{L}\p{N}]{4,}/gu)||[]);let same=0;for(const w of wa)if(wb.has(w))same++;return same/Math.max(1,Math.min(wa.size,wb.size))>.68}))continue;chosen.push(e);wordsUsed+=words.length;}
+ if(!chosen.length)chosen.push(ranked[0]);
+ return chosen.sort((a,b)=>a.index-b.index).map(e=>'[Pág. '+e.page+'] '+e.text).join('\n\n');
 }
 async function extractAnalysis(){
 if(!uploaded)return;
