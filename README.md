@@ -21,3 +21,7 @@ No GitHub, abra **Settings → Pages → Build and deployment → Deploy from a 
 ## Assinar PDF
 
 A opção **Assinar PDF** permite desenhar ou digitar uma assinatura, visualizar o documento, selecionar a página, clicar para definir a posição e ajustar a largura antes de salvar um novo PDF. Usa PDF.js e pdf-lib no navegador e não envia arquivos ao servidor. Esta é uma **assinatura visual**, sem certificação ICP-Brasil, prova criptográfica de integridade ou verificação de identidade. PDFs protegidos por senha podem não ser aceitos.
+
+### Assinaturas múltiplas e importadas
+
+A ferramenta permite importar imagem de assinatura (PNG, JPG ou WebP), desenhar ou digitar, clicar repetidas vezes na prévia para posicionar **várias assinaturas**, mudar de página, duplicar a última assinatura, remover a última ou limpar todas. As assinaturas são incorporadas como imagens ao novo PDF, localmente no navegador. **Importar uma imagem de assinatura NÃO equivale à assinatura digital criptográfica com certificado ICP-Brasil (PAdES)**. Este recurso de certificação não está implementado.
