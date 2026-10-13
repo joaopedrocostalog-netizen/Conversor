@@ -25,3 +25,7 @@ A opção **Assinar PDF** permite desenhar ou digitar uma assinatura, visualizar
 ### Assinaturas múltiplas e importadas
 
 A ferramenta permite importar imagem de assinatura (PNG, JPG ou WebP), desenhar ou digitar, clicar repetidas vezes na prévia para posicionar **várias assinaturas**, mudar de página, duplicar a última assinatura, remover a última ou limpar todas. As assinaturas são incorporadas como imagens ao novo PDF, localmente no navegador. **Importar uma imagem de assinatura NÃO equivale à assinatura digital criptográfica com certificado ICP-Brasil (PAdES)**. Este recurso de certificação não está implementado.
+
+## Assinatura digital com certificado ICP-Brasil A1
+
+Nova seção em **Assinar PDF**: envia o PDF, certificado PKCS#12 (.pfx/.p12) e senha para uma API Python **sob seu controle**, configurada manualmente. Veja instruções em [`backend/README.md`](backend/README.md). **GitHub Pages não executa esse backend**; sem URL de servidor em HTTPS, a função A1 não estará operacional. A implementação gera assinatura criptográfica, mas a conformidade ICP-Brasil e a validade do certificado devem ser verificadas com validador de confiança. Nunca envie certificado e senha a serviços desconhecidos. **Ainda não validado ponta a ponta com certificado real.**
