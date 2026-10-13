@@ -17,3 +17,7 @@ No GitHub, abra **Settings → Pages → Build and deployment → Deploy from a 
 - **OCR + IA**: executa a mesma extração e permite fazer perguntas sobre o texto. O usuário deve informar sua própria chave OpenAI, que não fica gravada no repositório nem em localStorage. A solicitação envia o **texto editável extraído** para a OpenAI via API; não envia o PDF integral. Pode haver cobrança pelo provedor.
 - **Limitações**: documentos manuscritos ou com tabelas complexas podem precisar de revisão. Arquivos grandes consomem bastante memória. O modo IA usa chamada direta do navegador e pode depender de políticas CORS do provedor; implantação corporativa recomendada via backend com autenticação e gerenciamento seguro de credenciais. O sistema não oferece conta gratuita de IA e não garante respostas corretas.
 - Este módulo é uma **implementação própria inspirada no fluxo OCR + análise de PDFs**, e não uma incorporação direta do backend Python do repositório pdfGPT.
+
+## Assinar PDF
+
+A opção **Assinar PDF** permite desenhar ou digitar uma assinatura, visualizar o documento, selecionar a página, clicar para definir a posição e ajustar a largura antes de salvar um novo PDF. Usa PDF.js e pdf-lib no navegador e não envia arquivos ao servidor. Esta é uma **assinatura visual**, sem certificação ICP-Brasil, prova criptográfica de integridade ou verificação de identidade. PDFs protegidos por senha podem não ser aceitos.
