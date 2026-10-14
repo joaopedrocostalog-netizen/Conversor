@@ -105,8 +105,8 @@ for(const id of list){const m=MODES.find(x=>x.id===id),info=HOME_INFO[id],card=d
 const GROUPS=[
  {title:'PDF para DOCX',ids:['pdf-word','pdf-excel','pdf-png','pdf-jpeg','pdf-webp','pdf-text','pdf-csv']},
  {title:'PNG, JPG, JPEG e WebP',ids:['images','image-pdf']},
- {title:'Documentos e texto',ids:['docx-txt','docx-html','txt-docx','txt-pdf','txt-html','html-txt','html-pdf']},
- {title:'Planilhas e dados',ids:['sheet-csv','sheet-json','sheet-pdf','csv-xlsx','csv-json','json-csv','json-xlsx']}
+ {title:'DOCX, TXT e HTML',ids:['docx-txt','docx-html','txt-docx','txt-pdf','txt-html','html-txt','html-pdf']},
+ {title:'XLSX, XLS, CSV e JSON',ids:['sheet-csv','sheet-json','sheet-pdf','csv-xlsx','csv-json','json-csv','json-xlsx']}
 ];
 const expandedGroups=new Set();
 function navButton(m,child=false){return '<button type="button" class="'+(child?'nav-child':'')+'" data-mode="'+m.id+'"><span class="emoji">'+m.icon+'</span><span class="nav-name">'+m.label+'</span></button>'}
