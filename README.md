@@ -42,3 +42,12 @@ O menu lateral agora tem grupos expansíveis de **PDF**, **Imagens**, **Document
 - CSV → XLSX/JSON; JSON → CSV/XLSX: JSON deve ser array de objetos (ou objeto simples); estruturas aninhadas não são preservadas com fidelidade.
 
 Os formatos são manipulados localmente pelo navegador, com bibliotecas carregadas via CDN. Nem todas as combinações imagináveis são suportadas. Para PDF escaneado, a extração de texto exige OCR (Análise de PDF segue em manutenção). Arquivos complexos podem perder estilos, imagens ou estrutura.
+
+## Ferramentas adicionais (2026-10)
+
+- **Conversão em lote:** até 20 arquivos de formatos aceitos pela ferramenta selecionada. Executa sequencialmente no navegador e gera um ZIP com conversões bem-sucedidas, informando falhas individuais. O ZIP e o processamento podem consumir muita memória.
+- **Pré-visualização:** imagens, primeira página de PDFs, TXT, CSV, JSON, HTML e primeira aba XLS/XLSX. Prévia não é renderização completa de arquivos DOCX.
+- **Histórico de conversões:** data, nome do arquivo original, nome convertido e tamanho armazenados apenas em `localStorage`. Sem persistência do conteúdo do arquivo; apagar os dados do navegador remove o histórico.
+- **PDF para XLSX (Tabelas):** reconstrói aproximadamente linhas/colunas a partir de coordenadas de texto extraível (PDF.js). Não realiza OCR e não garante fidelidade de tabelas complexas, mescladas ou digitalizadas.
+
+Esses recursos dependem de bibliotecas externas via CDN. A implementação está no `extras.js` e utiliza o motor já existente no `index.html`. Faça testes em navegador antes de utilizar documentos críticos.
