@@ -91,7 +91,7 @@ body.dark-mode .tools-toggle{border-color:#5e616c}body.dark-mode .mega-menu{box-
 'use strict';
 const MODES=[
 {id:'home',icon:'🏠',label:'Início',title:'Conversor de Arquivos',lead:'Todas as <em>ferramentas</em> em um só lugar.',sub:'Escolha uma ferramenta abaixo para converter seus arquivos.',accept:'.pdf,.png,.jpg,.jpeg,.webp,.txt,.csv,.json,.xlsx,.xls,.docx,.html',outputs:null},
-{id:'scan-pdf',icon:'📠',label:'Digitalizar PDF',title:'Digitalizar PDF',lead:'Transforme seu PDF em <em>documento digitalizado</em>.',sub:'Converta cada página em imagem e gere um PDF com aparência de documento escaneado.',accept:'.pdf',outputs:[]},
+{id:'scan-pdf',icon:'📠',label:'Escanear documento',title:'Escanear documento',lead:'Escaneie documentos <em>com a câmera do celular</em>.',sub:'Fotografe páginas de papel e crie um PDF.',accept:'image/*',outputs:[]},
 {id:'protect-pdf',icon:'🔒',label:'Proteger PDF',title:'Proteger PDF',lead:'Proteja seus <em>arquivos PDF</em>.',sub:'Adicione senha de abertura com criptografia AES-256.',accept:'.pdf',outputs:[]},
 {id:'unlock-pdf',icon:'🔓',label:'Desproteger PDF',title:'Desproteger PDF',lead:'Remova a <em>senha do PDF</em>.',sub:'Use a senha válida para criar uma cópia sem proteção.',accept:'.pdf',outputs:[]},
 {id:'compare',icon:'⚖️',label:'Comparar documentos',title:'Comparar documentos',lead:'Compare <em>dois documentos</em>.',sub:'Identifique linhas adicionadas, removidas e mantidas. Processamento local, sem IA.',accept:'.pdf,.docx,.txt,.html,.csv,.json,.xlsx,.xls',outputs:[]},
@@ -125,7 +125,7 @@ const MODES=[
 const $=id=>document.getElementById(id);let mode=MODES[0],uploaded=null;
 
 const HOME_INFO={
-'scan-pdf':['PDF','pdf','Transforme todas as páginas de um PDF em imagens, como um documento escaneado.'],
+'scan-pdf':['📷','image','Fotografe documentos com o celular e reúna as páginas em PDF.'],
 'protect-pdf':['🔒','pdf','Adicione uma senha de abertura com criptografia AES-256.'],
 'unlock-pdf':['🔓','pdf','Remova a senha de um PDF com a senha correta.'],
 'compare':['≠','word','Compare dois arquivos e veja as diferenças entre seus textos.'],
