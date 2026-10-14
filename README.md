@@ -69,3 +69,9 @@ Requisitos: navegador com WebAssembly e acesso aos CDNs `esm.sh` e `cdn.jsdelivr
 ## Digitalizar PDF (a partir de um PDF)
 
 A ferramenta **Digitalizar PDF** transforma cada página de um PDF existente em uma imagem JPEG incorporada a um novo PDF, com resolução selecionável (compacta, equilibrada ou alta). Todas as páginas são processadas localmente com PDF.js e jsPDF, preservando aproximadamente as dimensões e a orientação originais. O documento resultante fica semelhante a um PDF escaneado: **perde a camada de texto selecionável/pesquisável e links**, e **não realiza OCR**. Limites: arquivo original de até 100 MB, máximo 200 páginas e até 24 milhões de pixels por página; memória disponível no dispositivo pode impor limites menores. O novo arquivo é baixado com o sufixo `-digitalizado.pdf`.
+
+## Scanner de documentos usando câmera do celular
+
+A ferramenta **Escanear documento** agora permite fotografar documentos de papel com a câmera traseira do celular (`<input type="file" accept="image/*" capture="environment">`), adicionar outras fotos, girar, reorganizar e excluir páginas, selecionar estilo (colorido, cinza ou preto e branco) e gerar um PDF multipágina localmente. Em navegadores que não seguem `capture`, o sistema pode oferecer a galeria no lugar da câmera. Também é possível adicionar imagens existentes pelo botão Galeria. O scanner **não faz detecção automática das bordas nem recorte perspectivo** e não realiza OCR. O arquivo não é enviado ao servidor. Limite: 60 páginas, 25 MB por foto.
+
+**Atualização:** esta função substitui o fluxo anterior de rasterização de um PDF enviado. Agora é um scanner de documentos físicos pela câmera.
