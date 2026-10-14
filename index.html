@@ -90,6 +90,7 @@ body.dark-mode .tools-toggle{border-color:#5e616c}body.dark-mode .mega-menu{box-
 <script>
 'use strict';
 const MODES=[
+{id:'scan-pdf',icon:'📠',label:'Digitalizar PDF',title:'Digitalizar PDF',lead:'Transforme seu PDF em <em>documento digitalizado</em>.',sub:'Converta cada página em imagem e gere um PDF com aparência de documento escaneado.',accept:'.pdf',outputs:[]},
 {id:'protect-pdf',icon:'🔒',label:'Proteger PDF',title:'Proteger PDF',lead:'Proteja seus <em>arquivos PDF</em>.',sub:'Adicione senha de abertura com criptografia AES-256.',accept:'.pdf',outputs:[]},
 {id:'unlock-pdf',icon:'🔓',label:'Desproteger PDF',title:'Desproteger PDF',lead:'Remova a <em>senha do PDF</em>.',sub:'Use a senha válida para criar uma cópia sem proteção.',accept:'.pdf',outputs:[]},
 {id:'home',icon:'🏠',label:'Início',title:'Conversor de Arquivos',lead:'Todas as <em>ferramentas</em> em um só lugar.',sub:'Escolha uma ferramenta abaixo para converter seus arquivos.',accept:'.pdf,.png,.jpg,.jpeg,.webp,.txt,.csv,.json,.xlsx,.xls,.docx,.html',outputs:null},
@@ -124,6 +125,7 @@ const MODES=[
 const $=id=>document.getElementById(id);let mode=MODES[0],uploaded=null;
 
 const HOME_INFO={
+'scan-pdf':['PDF','pdf','Transforme todas as páginas de um PDF em imagens, como um documento escaneado.'],
 'protect-pdf':['🔒','pdf','Adicione uma senha de abertura com criptografia AES-256.'],
 'unlock-pdf':['🔓','pdf','Remova a senha de um PDF com a senha correta.'],
 'compare':['≠','word','Compare dois arquivos e veja as diferenças entre seus textos.'],
@@ -169,7 +171,7 @@ $('homeSearch').addEventListener('input',filterHomeCards);
 $('clearHomeSearch').addEventListener('click',()=>{$('homeSearch').value='';filterHomeCards();$('homeSearch').focus()});
 [['viewAll','all'],['viewFavorites','favorites'],['viewHidden','hidden']].forEach(([id,view])=>$(id).addEventListener('click',()=>{homeView=view;filterHomeCards()}));
 function renderHomeCards(){
- const list=['protect-pdf','unlock-pdf','compare','pdf-word','pdf-excel','pdf-tables','pdf-png','pdf-jpeg','pdf-webp','pdf-text','pdf-csv','images','image-pdf','docx-txt','docx-html','txt-pdf','txt-docx','csv-xlsx','json-xlsx','sheet-csv','sheet-pdf','analysis','sign'];
+ const list=['scan-pdf','protect-pdf','unlock-pdf','compare','pdf-word','pdf-excel','pdf-tables','pdf-png','pdf-jpeg','pdf-webp','pdf-text','pdf-csv','images','image-pdf','docx-txt','docx-html','txt-pdf','txt-docx','csv-xlsx','json-xlsx','sheet-csv','sheet-pdf','analysis','sign'];
  $('homeCards').replaceChildren();
  for(const id of new Set(list)){
  const m=MODES.find(x=>x.id===id),info=HOME_INFO[id],card=document.createElement('article');card.className='home-card';card.dataset.id=id;card.dataset.originalIndex=String(list.indexOf(id));
@@ -213,7 +215,7 @@ function outputTypes(){if(mode.outputs)return mode.outputs;const x=ext(uploaded)
 function updateSelect(){const types=outputTypes();$('format').innerHTML=types.map(x=>'<option value="'+x+'">.'+x.toUpperCase()+'</option>').join('');$('warning').textContent=ext(uploaded)==='pdf'?'PDF digital: Word e Excel priorizam conteúdo textual; tabelas, fontes e layouts complexos podem mudar. PDFs escaneados precisam de OCR. A conversão PDF para imagem exporta somente a primeira página.':'Imagens com transparência convertidas para JPG ou JPEG recebem fundo branco.'}
 function load(file){if(!file)return;const allowed=mode.accept.split(',');if(!allowed.includes('.'+ext(file))){status('Formato não aceito nesta ferramenta.','error');return}if(file.size>100*1024*1024){status('Limite de 100 MB por arquivo.','error');return}uploaded=file;$('panel').hidden=['analysis','sign'].includes(mode.id);$('analysis').hidden=mode.id!=='analysis';$('signBox').hidden=mode.id!=='sign';if(mode.id==='sign')initSignFile();if(mode.id==='analysis'){analysisPages=[];$('analysisFile').textContent='📎 '+file.name;$('analysisResult').hidden=true;$('downloadText').disabled=true;$('analysisStatus').textContent='Arquivo carregado. Clique em Extrair texto do PDF.';}$('filename').textContent='📎 '+file.name+' • '+(file.size/1048576).toFixed(2)+' MB';updateSelect();$('result').style.display='none';status('Arquivo carregado. Selecione o formato de saída.')}
 function clear(){signSession++;$('signBox').hidden=true;$('analysis').hidden=true;analysisPages=[];uploaded=null;$('file').value='';$('panel').hidden=true;$('result').style.display='none';status('')}
-function choose(id){mode=MODES.find(m=>m.id===id)||MODES[0];recordToolUsage(mode.id);GROUPS.forEach((g,i)=>{if(g.ids.includes(mode.id)&&mode.id!==g.ids[0])expandedGroups.add(i)});renderNav();$('currentTitle').textContent=mode.title;$('eyebrow').textContent=mode.title.toUpperCase();$('headline').innerHTML=mode.lead;$('subtitle').textContent=mode.sub;$('dropIcon').textContent=mode.icon;$('file').accept=mode.accept;$('pick').textContent=mode.id==='home'?'Escolher arquivo':'Escolher '+(mode.accept==='.pdf'?'PDF':'imagem');clear();const home=mode.id==='home';const maintenance=['analysis','sign'].includes(mode.id);const comparing=['compare','protect-pdf','unlock-pdf'].includes(mode.id);$('homeCards').hidden=!home;$('homeSearchWrap').hidden=!home;$('homeEmpty').hidden=!home||$('homeCards').querySelectorAll('.home-card:not([hidden])').length!==0;$('uploadArea').hidden=home||comparing;$('drop').hidden=maintenance;$('maintenanceNotice').hidden=!maintenance;if(maintenance){$('subtitle').textContent='Esta ferramenta está temporariamente em manutenção. Em breve estará disponível novamente.';}}
+function choose(id){mode=MODES.find(m=>m.id===id)||MODES[0];recordToolUsage(mode.id);GROUPS.forEach((g,i)=>{if(g.ids.includes(mode.id)&&mode.id!==g.ids[0])expandedGroups.add(i)});renderNav();$('currentTitle').textContent=mode.title;$('eyebrow').textContent=mode.title.toUpperCase();$('headline').innerHTML=mode.lead;$('subtitle').textContent=mode.sub;$('dropIcon').textContent=mode.icon;$('file').accept=mode.accept;$('pick').textContent=mode.id==='home'?'Escolher arquivo':'Escolher '+(mode.accept==='.pdf'?'PDF':'imagem');clear();const home=mode.id==='home';const maintenance=['analysis','sign'].includes(mode.id);const comparing=['compare','scan-pdf','protect-pdf','unlock-pdf'].includes(mode.id);$('homeCards').hidden=!home;$('homeSearchWrap').hidden=!home;$('homeEmpty').hidden=!home||$('homeCards').querySelectorAll('.home-card:not([hidden])').length!==0;$('uploadArea').hidden=home||comparing;$('drop').hidden=maintenance;$('maintenanceNotice').hidden=!maintenance;if(maintenance){$('subtitle').textContent='Esta ferramenta está temporariamente em manutenção. Em breve estará disponível novamente.';}}
 /* Eventos de navegação são registrados em renderNav(). */
 $('pick').addEventListener('click',()=>$('file').click());$('file').addEventListener('change',e=>load(e.target.files[0]));$('clear').addEventListener('click',clear);
 const drop=$('drop');drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('over')});drop.addEventListener('dragleave',()=>drop.classList.remove('over'));drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('over');load(e.dataTransfer.files[0])});
@@ -487,7 +489,7 @@ const blocks=[
 [{heading:'Imagens',ids:['image-pdf','images']},{heading:'Documentos Word',ids:['docx-txt','docx-html','txt-docx']}],
 [{heading:'Excel e dados',ids:['sheet-csv','sheet-json','sheet-pdf','csv-xlsx','csv-json','json-csv','json-xlsx']}],
 [{heading:'Textos e HTML',ids:['txt-pdf','txt-html','html-txt','html-pdf']}],
-[{heading:'Ferramentas',ids:['protect-pdf','unlock-pdf','compare','analysis','sign']},{heading:'Acesso rápido',ids:['home']}]
+[{heading:'Ferramentas',ids:['scan-pdf','protect-pdf','unlock-pdf','compare','analysis','sign']},{heading:'Acesso rápido',ids:['home']}]
 ];
 function close(){menu.hidden=true;toggle.setAttribute('aria-expanded','false')}
 function open(){menu.hidden=false;toggle.setAttribute('aria-expanded','true')}
@@ -504,4 +506,4 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
 document.addEventListener('click',e=>{if(!menu.hidden&&!menu.contains(e.target)&&!toggle.contains(e.target))close()});
 })();
 
-</script><script src="./extras.js"></script><script src="./compare.js"></script><script src="./security.js"></script></body></html>
+</script><script src="./extras.js"></script><script src="./compare.js"></script><script src="./security.js"></script><script src="./scan.js"></script></body></html>
