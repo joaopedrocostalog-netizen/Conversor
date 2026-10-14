@@ -18,7 +18,7 @@ btn.disabled=true;progress.hidden=false;progress.value=0;let documentPdf=null;
 try{
 documentPdf=await pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
 if(documentPdf.numPages>200)throw Error('Limite de 200 páginas por operação.');
-const output=new jspdf.jsPDF({unit:'pt',format:'a4',compress:true});output.deletePage(1);
+let output=null;
 const scale=Number($('scanQuality').value);
 for(let i=1;i<=documentPdf.numPages;i++){
 const page=await documentPdf.getPage(i),viewport=page.getViewport({scale:1}),scaled=page.getViewport({scale});
@@ -28,7 +28,8 @@ const context=canvas.getContext('2d',{alpha:false});context.fillStyle='#fff';con
 await page.render({canvasContext:context,viewport:scaled}).promise;
 const image=canvas.toDataURL('image/jpeg',.86);
 const pageWidth=viewport.width,pageHeight=viewport.height;
-output.addPage([pageWidth,pageHeight],pageWidth>pageHeight?'landscape':'portrait');
+if(!output)output=new jspdf.jsPDF({unit:'pt',format:[pageWidth,pageHeight],orientation:pageWidth>pageHeight?'landscape':'portrait',compress:true});
+else output.addPage([pageWidth,pageHeight],pageWidth>pageHeight?'landscape':'portrait');
 output.addImage(image,'JPEG',0,0,pageWidth,pageHeight);
 canvas.width=0;canvas.height=0;page.cleanup();progress.value=Math.round(i/documentPdf.numPages*100);message.textContent='Digitalizando página '+i+' de '+documentPdf.numPages+'...';
 await new Promise(resolve=>setTimeout(resolve,0));
