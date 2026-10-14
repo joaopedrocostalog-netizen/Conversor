@@ -1,0 +1,27 @@
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const css=document.createElement('style');
+css.textContent='.security-box{max-width:700px;margin:24px auto;padding:25px;border:1px solid #dedee4;border-radius:16px;background:white}.security-box[hidden]{display:none}.security-box h2{margin:0 0 9px}.security-box p{font-size:14px;line-height:1.55;color:#646872}.security-form{display:grid;gap:14px;margin:22px 0}.security-form label{display:grid;gap:7px;font-size:13px;font-weight:700}.security-form input{width:100%;padding:12px;border:1px solid #ccc;border-radius:9px}.security-form button{border:0;background:#e30613;color:#fff;border-radius:9px;padding:13px;font-weight:700;cursor:pointer}.security-form button:disabled{opacity:.6;cursor:wait}.security-message{white-space:pre-wrap;font-size:13px;line-height:1.6}.security-note{font-size:12px!important}body.dark-mode .security-box{background:#25262c;color:#f4f4f6;border-color:#53565d}body.dark-mode .security-box p{color:#c8cad0}body.dark-mode .security-form input{background:#343640;color:white;border-color:#666}';
+document.head.appendChild(css);
+const section=document.createElement('section');section.id='securityBox';section.className='security-box';section.hidden=true;
+section.innerHTML='<h2 id="securityTitle"></h2><p id="securityIntro"></p><form id="securityForm" class="security-form"><label>Arquivo PDF<input id="securityFile" type="file" accept=".pdf,application/pdf" required></label><label id="securityPassLabel">Senha<input id="securityPass" type="password" autocomplete="new-password" required minlength="1" placeholder="Digite uma senha"></label><label id="securityConfirmLabel">Confirmar senha<input id="securityConfirm" type="password" autocomplete="new-password" placeholder="Repita a senha"></label><button type="submit" id="securitySubmit">Processar PDF</button></form><div id="securityMessage" role="status" aria-live="polite" class="security-message"></div><p class="security-note">Processamento no próprio navegador por WebAssembly (qpdf). Guarde a senha: sem ela, o arquivo pode ficar inacessível. Use a função de remoção apenas em PDFs que você tem autorização para modificar.</p>';
+$('uploadArea').after(section);
+const before=choose;
+choose=function(id){before(id);const sec=id==='protect-pdf'||id==='unlock-pdf';section.hidden=!sec;if(sec){$('uploadArea').hidden=true;if($('batchBox'))$('batchBox').hidden=true;if($('previewBox'))$('previewBox').hidden=true;const protect=id==='protect-pdf';$('securityTitle').textContent=protect?'🔒 Proteger PDF':'🔓 Desproteger PDF';$('securityIntro').textContent=protect?'Crie uma cópia protegida por senha de abertura com AES-256.':'Informe a senha de abertura ou de proprietário de um PDF para gerar uma cópia sem criptografia.';$('securityPassLabel').firstChild.textContent=protect?'Nova senha':'Senha atual';$('securityConfirmLabel').hidden=!protect;$('securityConfirm').required=protect;$('securityPass').autocomplete=protect?'new-password':'current-password';$('securitySubmit').textContent=protect?'Proteger e baixar PDF':'Desproteger e baixar PDF';$('securityMessage').textContent='';$('securityFile').value='';$('securityPass').value='';$('securityConfirm').value='';}};
+choose(mode.id);
+let toolkitPromise=null;
+async function toolkit(){if(!toolkitPromise)toolkitPromise=import('https://esm.sh/pdfstudio@0.4.0?bundle').then(async mod=>mod.createPdfToolkit({wasmUrl:'https://cdn.jsdelivr.net/npm/pdfstudio@0.4.0/dist/qpdf.wasm'})).catch(e=>{toolkitPromise=null;throw e});return toolkitPromise}
+$('securityForm').addEventListener('submit',async event=>{
+event.preventDefault();const file=$('securityFile').files[0],pass=$('securityPass').value,protect=mode.id==='protect-pdf',button=$('securitySubmit'),message=$('securityMessage');
+if(!file||file.name.toLowerCase().endsWith('.pdf')===false){message.textContent='Selecione um arquivo PDF válido.';return}
+if(file.size>100*1024*1024){message.textContent='Limite de 100 MB por arquivo.';return}
+if(!pass){message.textContent='Informe a senha.';return}
+if(protect&&pass!==$('securityConfirm').value){message.textContent='As senhas não conferem.';return}
+button.disabled=true;message.textContent='Carregando mecanismo de criptografia e processando PDF...';
+try{const lib=await toolkit();const input=new Uint8Array(await file.arrayBuffer());const result=protect?await lib.lock(input,{userPassword:pass,ownerPassword:pass,keyLength:256}):await lib.unlock(input,{password:pass});if(!result||!result.length)throw Error('O arquivo gerado está vazio.');
+const base=file.name.replace(/\.pdf$/i,''),name=base+(protect?'-protegido.pdf':'-desprotegido.pdf'),blob=new Blob([result],{type:'application/pdf'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=name;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);window.CostaExtras?.record(file.name,name,blob.size);message.textContent=protect?'PDF protegido e download iniciado. Guarde a senha com segurança.':'PDF desprotegido e download iniciado.';
+}catch(error){console.error(error);message.textContent='Não foi possível processar o PDF. '+(protect?'Verifique se o arquivo já está protegido e tente um PDF sem senha.':'Confira a senha informada e a integridade do PDF.')+' Detalhes: '+(error.message||'Erro desconhecido')}
+finally{$('securityPass').value='';$('securityConfirm').value='';button.disabled=false}
+});
+})();
