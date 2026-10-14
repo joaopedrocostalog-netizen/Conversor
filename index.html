@@ -44,39 +44,62 @@
 <script>
 'use strict';
 const MODES=[
-{id:'home',icon:'🏠',label:'Início',title:'Conversor de Arquivos',lead:'Converta seus <em>arquivos</em> facilmente.',sub:'Transforme documentos e imagens em outros formatos, diretamente no navegador.',accept:'.pdf,.png,.jpg,.jpeg,.webp',outputs:null},
-{id:'pdf-word',icon:'📝',label:'PDF para DOCX',title:'PDF para DOCX',lead:'Converta <em>PDF para DOCX</em>.',sub:'Extraia o texto de PDFs digitais para documentos editáveis (.docx).',accept:'.pdf',outputs:['docx']},
-{id:'pdf-excel',icon:'📊',label:'PDF para XLSX',title:'PDF para XLSX',lead:'Converta <em>PDF para XLSX</em>.',sub:'Transforme textos de PDFs digitais em planilhas (.xlsx).',accept:'.pdf',outputs:['xlsx']},
-{id:'pdf-png',icon:'🖼️',label:'PDF para PNG',title:'PDF para PNG',lead:'Converta <em>PDF para PNG</em>.',sub:'Exporte a primeira página do PDF como imagem PNG.',accept:'.pdf',outputs:['png']},
-{id:'pdf-jpeg',icon:'🖼️',label:'PDF para JPEG',title:'PDF para JPEG',lead:'Converta <em>PDF para JPEG</em>.',sub:'Exporte a primeira página do PDF como imagem JPEG.',accept:'.pdf',outputs:['jpeg']},
-{id:'pdf-text',icon:'📃',label:'PDF para TXT',title:'PDF para TXT',lead:'Converta <em>PDF para TXT</em>.',sub:'Extraia o texto de todas as páginas de um PDF digital (.txt).',accept:'.pdf',outputs:['txt']},
-{id:'image-pdf',icon:'📕',label:'PNG/JPEG/WebP para PDF',title:'PNG/JPEG/WebP para PDF',lead:'Converta <em>imagens para PDF</em>.',sub:'Gere um PDF a partir de uma imagem PNG, JPEG ou WebP.',accept:'.png,.jpg,.jpeg,.webp',outputs:['pdf']},
-{id:'images',icon:'🎨',label:'PNG/JPG/JPEG/WebP',title:'Conversor PNG/JPG/JPEG/WebP',lead:'Converta <em>PNG, JPG, JPEG e WebP</em>.',sub:'Converta imagens entre PNG, JPG, JPEG e WebP, preservando as dimensões.',accept:'.png,.jpg,.jpeg,.webp',outputs:['png','jpg','jpeg','webp']},
-{id:'analysis',icon:'🔍',label:'Análise de PDF',title:'Análise de PDF',lead:'Analise seus <em>PDFs</em>.',sub:'Funcionalidade em manutenção. Em breve.',accept:'.pdf',outputs:[]},
-{id:'sign',icon:'✍️',label:'Assinar PDF',title:'Assinar PDF',lead:'Assine seus <em>PDFs</em>.',sub:'Funcionalidade em manutenção. Em breve.',accept:'.pdf',outputs:[]}
+{id:'home',icon:'🏠',label:'Início',title:'Início',lead:'Converta <em>Início</em>.',sub:'Conversão de arquivos realizada no navegador.',accept:'.pdf,.png,.jpg,.jpeg,.webp,.txt,.csv,.json,.xlsx,.xls,.docx,.html',outputs:null},
+{id:'pdf-word',icon:'📝',label:'PDF para DOCX',title:'PDF para DOCX',lead:'Converta <em>PDF para DOCX</em>.',sub:'Conversão de arquivos realizada no navegador.',accept:'.pdf',outputs:["docx"]},
+{id:'pdf-excel',icon:'📊',label:'PDF para XLSX',title:'PDF para XLSX',lead:'Converta <em>PDF para XLSX</em>.',sub:'Conversão de arquivos realizada no navegador.',accept:'.pdf',outputs:["xlsx"]},
+{id:'pdf-png',icon:'🖼️',label:'PDF para PNG',title:'PDF para PNG',lead:'Converta <em>PDF para PNG</em>.',sub:'Conversão de arquivos realizada no navegador.',accept:'.pdf',outputs:["png"]},
+{id:'pdf-jpeg',icon:'🖼️',label:'PDF para JPEG',title:'PDF para JPEG',lead:'Converta <em>PDF para JPEG</em>.',sub:'Conversão de arquivos realizada no navegador.',accept:'.pdf',outputs:["jpeg"]},
+{id:'pdf-text',icon:'📃',label:'PDF para TXT',title:'PDF para TXT',lead:'Converta <em>PDF para TXT</em>.',sub:'Conversão de arquivos realizada no navegador.',accept:'.pdf',outputs:["txt"]},
+{id:'pdf-webp',icon:'🖼️',label:'PDF para WebP',title:'PDF para WebP',lead:'Converta <em>PDF para WebP</em>.',sub:'Conversão de arquivos realizada no navegador.',accept:'.pdf',outputs:["webp"]},
+{id:'pdf-csv',icon:'📊',label:'PDF para CSV',title:'PDF para CSV',lead:'Converta <em>PDF para CSV</em>.',sub:'Conversão de arquivos realizada no navegador.',accept:'.pdf',outputs:["csv"]},
+{id:'image-pdf',icon:'📕',label:'PNG/JPG/JPEG/WebP para PDF',title:'PNG/JPG/JPEG/WebP para PDF',lead:'Converta <em>PNG/JPG/JPEG/WebP para PDF</em>.',sub:'Conversão de arquivos realizada no navegador.',accept:'.png,.jpg,.jpeg,.webp',outputs:["pdf"]},
+{id:'images',icon:'🎨',label:'PNG/JPG/JPEG/WebP',title:'PNG/JPG/JPEG/WebP',lead:'Converta <em>PNG/JPG/JPEG/WebP</em>.',sub:'Conversão de arquivos realizada no navegador.',accept:'.png,.jpg,.jpeg,.webp',outputs:["png","jpg","jpeg","webp"]},
+{id:'docx-txt',icon:'📝',label:'DOCX para TXT',title:'DOCX para TXT',lead:'Converta <em>DOCX para TXT</em>.',sub:'Conversão de arquivos realizada no navegador.',accept:'.docx',outputs:["txt"]},
+{id:'docx-html',icon:'📝',label:'DOCX para HTML',title:'DOCX para HTML',lead:'Converta <em>DOCX para HTML</em>.',sub:'Conversão de arquivos realizada no navegador.',accept:'.docx',outputs:["html"]},
+{id:'txt-docx',icon:'📃',label:'TXT para DOCX',title:'TXT para DOCX',lead:'Converta <em>TXT para DOCX</em>.',sub:'Conversão de arquivos realizada no navegador.',accept:'.txt',outputs:["docx"]},
+{id:'txt-pdf',icon:'📃',label:'TXT para PDF',title:'TXT para PDF',lead:'Converta <em>TXT para PDF</em>.',sub:'Conversão de arquivos realizada no navegador.',accept:'.txt',outputs:["pdf"]},
+{id:'txt-html',icon:'📃',label:'TXT para HTML',title:'TXT para HTML',lead:'Converta <em>TXT para HTML</em>.',sub:'Conversão de arquivos realizada no navegador.',accept:'.txt',outputs:["html"]},
+{id:'html-txt',icon:'🌐',label:'HTML para TXT',title:'HTML para TXT',lead:'Converta <em>HTML para TXT</em>.',sub:'Conversão de arquivos realizada no navegador.',accept:'.html',outputs:["txt"]},
+{id:'html-pdf',icon:'🌐',label:'HTML para PDF',title:'HTML para PDF',lead:'Converta <em>HTML para PDF</em>.',sub:'Conversão de arquivos realizada no navegador.',accept:'.html',outputs:["pdf"]},
+{id:'sheet-csv',icon:'📊',label:'XLSX/XLS para CSV',title:'XLSX/XLS para CSV',lead:'Converta <em>XLSX/XLS para CSV</em>.',sub:'Conversão de arquivos realizada no navegador.',accept:'.xlsx,.xls',outputs:["csv"]},
+{id:'sheet-json',icon:'📊',label:'XLSX/XLS para JSON',title:'XLSX/XLS para JSON',lead:'Converta <em>XLSX/XLS para JSON</em>.',sub:'Conversão de arquivos realizada no navegador.',accept:'.xlsx,.xls',outputs:["json"]},
+{id:'sheet-pdf',icon:'📊',label:'XLSX/XLS para PDF',title:'XLSX/XLS para PDF',lead:'Converta <em>XLSX/XLS para PDF</em>.',sub:'Conversão de arquivos realizada no navegador.',accept:'.xlsx,.xls',outputs:["pdf"]},
+{id:'csv-xlsx',icon:'📊',label:'CSV para XLSX',title:'CSV para XLSX',lead:'Converta <em>CSV para XLSX</em>.',sub:'Conversão de arquivos realizada no navegador.',accept:'.csv',outputs:["xlsx"]},
+{id:'csv-json',icon:'📊',label:'CSV para JSON',title:'CSV para JSON',lead:'Converta <em>CSV para JSON</em>.',sub:'Conversão de arquivos realizada no navegador.',accept:'.csv',outputs:["json"]},
+{id:'json-csv',icon:'📊',label:'JSON para CSV',title:'JSON para CSV',lead:'Converta <em>JSON para CSV</em>.',sub:'Conversão de arquivos realizada no navegador.',accept:'.json',outputs:["csv"]},
+{id:'json-xlsx',icon:'📊',label:'JSON para XLSX',title:'JSON para XLSX',lead:'Converta <em>JSON para XLSX</em>.',sub:'Conversão de arquivos realizada no navegador.',accept:'.json',outputs:["xlsx"]},
+{id:'analysis',icon:'🔍',label:'Análise de PDF',title:'Análise de PDF',lead:'Converta <em>Análise de PDF</em>.',sub:'Conversão de arquivos realizada no navegador.',accept:'.pdf',outputs:[]},
+{id:'sign',icon:'✍️',label:'Assinar PDF',title:'Assinar PDF',lead:'Converta <em>Assinar PDF</em>.',sub:'Conversão de arquivos realizada no navegador.',accept:'.pdf',outputs:[]},
 ];
 const $=id=>document.getElementById(id);let mode=MODES[0],uploaded=null;
-const pdfGroup=['pdf-word','pdf-excel','pdf-png','pdf-jpeg','pdf-text'];
-let pdfExpanded=false;
+const GROUPS=[
+ {title:'PDF para DOCX',ids:['pdf-word','pdf-excel','pdf-png','pdf-jpeg','pdf-webp','pdf-text','pdf-csv']},
+ {title:'Imagens',ids:['images','image-pdf']},
+ {title:'Documentos e texto',ids:['docx-txt','docx-html','txt-docx','txt-pdf','txt-html','html-txt','html-pdf']},
+ {title:'Planilhas e dados',ids:['sheet-csv','sheet-json','sheet-pdf','csv-xlsx','csv-json','json-csv','json-xlsx']}
+];
+const expandedGroups=new Set();
 function navButton(m,child=false){return '<button type="button" class="'+(child?'nav-child':'')+'" data-mode="'+m.id+'"><span class="emoji">'+m.icon+'</span><span class="nav-name">'+m.label+'</span></button>'}
 function renderNav(){
- const home=MODES.find(m=>m.id==='home'),main=MODES.find(m=>m.id==='pdf-word');
- let html=navButton(home)+'<div class="pdf-nav-parent"><button type="button" data-mode="pdf-word"><span class="emoji">'+main.icon+'</span><span class="nav-name">'+main.label+'</span></button><button type="button" id="pdfToggle" class="pdf-toggle" aria-label="'+(pdfExpanded?'Recolher':'Expandir')+' formatos de PDF" aria-expanded="'+pdfExpanded+'"><span aria-hidden="true">'+(pdfExpanded?'⌃':'⌄')+'</span></button></div>';
- html+='<div class="pdf-subnav" '+(pdfExpanded?'':'hidden')+'>'+pdfGroup.slice(1).map(id=>navButton(MODES.find(m=>m.id===id),true)).join('')+'</div>';
- html+=MODES.filter(m=>!pdfGroup.includes(m.id)&&m.id!=='home').map(m=>navButton(m)).join('');
+ let html=navButton(MODES[0]);
+ GROUPS.forEach((group,i)=>{
+ const first=MODES.find(m=>m.id===group.ids[0]),open=expandedGroups.has(i);
+ html+='<div class="pdf-nav-parent"><button type="button" data-mode="'+first.id+'"><span class="emoji">'+first.icon+'</span><span class="nav-name">'+group.title+'</span></button><button type="button" class="pdf-toggle" data-toggle="'+i+'" aria-label="'+(open?'Recolher':'Expandir')+' '+group.title+'" aria-expanded="'+open+'">'+(open?'⌃':'⌄')+'</button></div>';
+ html+='<div class="pdf-subnav" '+(open?'':'hidden')+'>'+group.ids.slice(1).map(id=>navButton(MODES.find(m=>m.id===id),true)).join('')+'</div>';
+ });
+ html+=navButton(MODES.find(m=>m.id==='analysis'))+navButton(MODES.find(m=>m.id==='sign'));
  $('nav').innerHTML=html;
  $('nav').querySelectorAll('[data-mode]').forEach(el=>el.addEventListener('click',()=>choose(el.dataset.mode)));
- $('pdfToggle').addEventListener('click',()=>{pdfExpanded=!pdfExpanded;renderNav()});
+ $('nav').querySelectorAll('[data-toggle]').forEach(el=>el.addEventListener('click',()=>{const n=Number(el.dataset.toggle);expandedGroups.has(n)?expandedGroups.delete(n):expandedGroups.add(n);renderNav()}));
  $('nav').querySelectorAll('[data-mode]').forEach(el=>el.classList.toggle('active',el.dataset.mode===mode.id));
 }
-
 function status(message,kind=''){$('status').textContent=message;$('status').className='status '+kind}
 function ext(file){return (file.name.split('.').pop()||'').toLowerCase()}
-function outputTypes(){if(mode.outputs)return mode.outputs;return ext(uploaded)==='pdf'?['docx','xlsx','png','jpeg','txt']:['pdf','png','jpg','jpeg','webp']}
-function updateSelect(){const types=outputTypes();$('format').innerHTML=types.map(x=>'<option value="'+x+'">.'+x.toUpperCase()+'</option>').join('');$('warning').textContent=ext(uploaded)==='pdf'?'PDF digital: Word e Excel priorizam conteúdo textual; tabelas, fontes e layouts complexos podem mudar. PDFs escaneados precisam de OCR. A opção PDF para imagem exporta somente a primeira página.':'Imagens com transparência convertidas para JPG ou JPEG recebem fundo branco.'}
+function outputTypes(){if(mode.outputs)return mode.outputs;const x=ext(uploaded);if(x==='pdf')return ['docx','xlsx','png','jpeg','webp','txt','csv'];if(['png','jpg','jpeg','webp'].includes(x))return ['pdf','png','jpg','jpeg','webp'];if(x==='docx')return ['txt','html'];if(x==='txt')return ['docx','pdf','html'];if(x==='html')return ['txt','pdf'];if(['xlsx','xls'].includes(x))return ['csv','json','pdf'];if(x==='csv')return ['xlsx','json'];if(x==='json')return ['csv','xlsx'];return []}
+function updateSelect(){const types=outputTypes();$('format').innerHTML=types.map(x=>'<option value="'+x+'">.'+x.toUpperCase()+'</option>').join('');$('warning').textContent=ext(uploaded)==='pdf'?'PDF digital: Word e Excel priorizam conteúdo textual; tabelas, fontes e layouts complexos podem mudar. PDFs escaneados precisam de OCR. A conversão PDF para imagem exporta somente a primeira página.':'Imagens com transparência convertidas para JPG ou JPEG recebem fundo branco.'}
 function load(file){if(!file)return;const allowed=mode.accept.split(',');if(!allowed.includes('.'+ext(file))){status('Formato não aceito nesta ferramenta.','error');return}if(file.size>100*1024*1024){status('Limite de 100 MB por arquivo.','error');return}uploaded=file;$('panel').hidden=['analysis','sign'].includes(mode.id);$('analysis').hidden=mode.id!=='analysis';$('signBox').hidden=mode.id!=='sign';if(mode.id==='sign')initSignFile();if(mode.id==='analysis'){analysisPages=[];$('analysisFile').textContent='📎 '+file.name;$('analysisResult').hidden=true;$('downloadText').disabled=true;$('analysisStatus').textContent='Arquivo carregado. Clique em Extrair texto do PDF.';}$('filename').textContent='📎 '+file.name+' • '+(file.size/1048576).toFixed(2)+' MB';updateSelect();$('result').style.display='none';status('Arquivo carregado. Selecione o formato de saída.')}
 function clear(){signSession++;$('signBox').hidden=true;$('analysis').hidden=true;analysisPages=[];uploaded=null;$('file').value='';$('panel').hidden=true;$('result').style.display='none';status('')}
-function choose(id){mode=MODES.find(m=>m.id===id)||MODES[0];if(pdfGroup.includes(mode.id)&&mode.id!=='pdf-word')pdfExpanded=true;renderNav();$('currentTitle').textContent=mode.title;$('eyebrow').textContent=mode.title.toUpperCase();$('headline').innerHTML=mode.lead;$('subtitle').textContent=mode.sub;$('dropIcon').textContent=mode.icon;$('file').accept=mode.accept;$('pick').textContent=mode.id==='home'?'Escolher arquivo':'Escolher '+(mode.accept==='.pdf'?'PDF':'imagem');clear();const maintenance=['analysis','sign'].includes(mode.id);$('drop').hidden=maintenance;$('maintenanceNotice').hidden=!maintenance;if(maintenance){$('subtitle').textContent='Esta ferramenta está temporariamente em manutenção. Em breve estará disponível novamente.';}}
+function choose(id){mode=MODES.find(m=>m.id===id)||MODES[0];GROUPS.forEach((g,i)=>{if(g.ids.includes(mode.id)&&mode.id!==g.ids[0])expandedGroups.add(i)});renderNav();$('currentTitle').textContent=mode.title;$('eyebrow').textContent=mode.title.toUpperCase();$('headline').innerHTML=mode.lead;$('subtitle').textContent=mode.sub;$('dropIcon').textContent=mode.icon;$('file').accept=mode.accept;$('pick').textContent=mode.id==='home'?'Escolher arquivo':'Escolher '+(mode.accept==='.pdf'?'PDF':'imagem');clear();const maintenance=['analysis','sign'].includes(mode.id);$('drop').hidden=maintenance;$('maintenanceNotice').hidden=!maintenance;if(maintenance){$('subtitle').textContent='Esta ferramenta está temporariamente em manutenção. Em breve estará disponível novamente.';}}
 /* Eventos de navegação são registrados em renderNav(). */
 $('pick').addEventListener('click',()=>$('file').click());$('file').addEventListener('change',e=>load(e.target.files[0]));$('clear').addEventListener('click',clear);
 const drop=$('drop');drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('over')});drop.addEventListener('dragleave',()=>drop.classList.remove('over'));drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('over');load(e.dataTransfer.files[0])});
@@ -95,19 +118,70 @@ zip.file('word/document.xml','<?xml version="1.0" encoding="UTF-8" standalone="y
 return zip.generateAsync({type:'blob',compression:'DEFLATE',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
 }
 async function asImage(file,type){const bitmap=await createImageBitmap(file);const cv=document.createElement('canvas');cv.width=bitmap.width;cv.height=bitmap.height;const cx=cv.getContext('2d');if(type==='image/jpeg'){cx.fillStyle='#fff';cx.fillRect(0,0,cv.width,cv.height)}cx.drawImage(bitmap,0,0);bitmap.close();return new Promise((resolve,reject)=>cv.toBlob(b=>b?resolve(b):reject(Error('Não foi possível gerar a imagem.')),type,.93))}
+
+function escapeHtmlText(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+async function readableText(){
+const bytes=await uploaded.arrayBuffer();return new TextDecoder('utf-8',{fatal:false}).decode(bytes);
+}
+function makePdfFromLines(lines){
+if(!window.jspdf)throw Error('Biblioteca PDF indisponível.');
+const out=new jspdf.jsPDF({unit:'mm',format:'a4'});let y=18;out.setFontSize(10);
+for(const raw of lines){for(const l of out.splitTextToSize(String(raw).slice(0,3000),175)){if(y>278){out.addPage();y=18}out.text(l,17,y);y+=5}}
+return out.output('blob');
+}
+function sheetRowsToPdf(rows){return makePdfFromLines(rows.slice(0,4000).map(r=>r.map(v=>String(v??'')).join(' | ')))}
+async function convertTextAndData(source,out){
+let text,wb,rows,records;
+if(['txt','html','csv','json'].includes(source))text=await readableText();
+if(source==='docx'){
+if(!window.JSZip)throw Error('Biblioteca ZIP indisponível.');
+const zip=await JSZip.loadAsync(await uploaded.arrayBuffer());const file=zip.file('word/document.xml');
+if(!file)throw Error('DOCX inválido ou sem conteúdo.');
+const raw=await file.async('text');const doc=new DOMParser().parseFromString(raw,'application/xml');
+if(doc.querySelector('parsererror'))throw Error('XML interno do DOCX inválido.');
+const paras=Array.from(doc.getElementsByTagNameNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main','p'));
+text=paras.map(p=>Array.from(p.getElementsByTagNameNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main','t')).map(n=>n.textContent).join('')).join('\n');
+if(out==='txt')return new Blob([text],{type:'text/plain;charset=utf-8'});
+if(out==='html')return new Blob(['<!doctype html><html lang="pt-BR"><meta charset="UTF-8"><body>'+text.split('\n').map(x=>'<p>'+escapeHtmlText(x)+'</p>').join('')+'</body></html>'],{type:'text/html;charset=utf-8'});
+}
+if(source==='txt'){
+if(out==='docx')return createWordDocument([text]);
+if(out==='pdf')return makePdfFromLines(text.split(/\r?\n/));
+if(out==='html')return new Blob(['<!doctype html><html lang="pt-BR"><meta charset="UTF-8"><body><pre>'+escapeHtmlText(text)+'</pre></body></html>'],{type:'text/html;charset=utf-8'});
+}
+if(source==='html'){
+const doc=new DOMParser().parseFromString(text,'text/html');doc.querySelectorAll('script,style,iframe,object,embed').forEach(el=>el.remove());
+const safe=doc.body.innerText||doc.body.textContent||'';
+if(out==='txt')return new Blob([safe],{type:'text/plain;charset=utf-8'});
+if(out==='pdf')return makePdfFromLines(safe.split(/\r?\n/));
+}
+if(['xls','xlsx','csv','json'].includes(source)){
+if(!window.XLSX)throw Error('Biblioteca de planilhas indisponível.');
+if(['xls','xlsx'].includes(source)){wb=XLSX.read(await uploaded.arrayBuffer(),{type:'array'});const first=wb.Sheets[wb.SheetNames[0]];if(!first)throw Error('Planilha sem abas.');rows=XLSX.utils.sheet_to_json(first,{header:1,defval:''})}
+if(source==='csv'){wb=XLSX.read(text,{type:'string',raw:true});rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''})}
+if(source==='json'){try{records=JSON.parse(text)}catch(e){throw Error('JSON inválido.')}if(!Array.isArray(records))records=[records];if(records.some(x=>typeof x!=='object'||x===null))records=records.map(x=>({valor:x}));}
+if(out==='pdf')return sheetRowsToPdf(rows||[]);
+if(out==='csv'){const sheet=rows?XLSX.utils.aoa_to_sheet(rows):XLSX.utils.json_to_sheet(records);return new Blob(['\uFEFF'+XLSX.utils.sheet_to_csv(sheet)],{type:'text/csv;charset=utf-8'})}
+if(out==='json'){const sheet=XLSX.utils.aoa_to_sheet(rows||[]);return new Blob([JSON.stringify(XLSX.utils.sheet_to_json(sheet,{defval:''}),null,2)],{type:'application/json;charset=utf-8'})}
+if(out==='xlsx'){const book=XLSX.utils.book_new(),sheet=rows?XLSX.utils.aoa_to_sheet(rows):XLSX.utils.json_to_sheet(records);XLSX.utils.book_append_sheet(book,sheet,'Dados');return new Blob([XLSX.write(book,{bookType:'xlsx',type:'array'})],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}
+}
+throw Error('Conversão indisponível para este formato.');
+}
+
 async function run(){if(!uploaded)return;const out=$('format').value,source=ext(uploaded),base=uploaded.name.replace(/\.[^.]+$/,'');$('convert').disabled=true;$('result').style.display='none';status('Processando arquivo...');try{
 let blob;
 if(source==='pdf'){const d=await pdf();try{
-if(['docx','xlsx','txt'].includes(out)){const pages=await pdfPagesText(d);if(!pages.some(p=>p.trim()))throw Error('Este PDF não contém texto extraível. Para PDFs escaneados é necessário OCR.');
-if(out==='txt')blob=new Blob([pages.map((p,i)=>'--- Página '+(i+1)+' ---\n'+p).join('\n\n')],{type:'text/plain;charset=utf-8'});
+if(['docx','xlsx','txt','csv'].includes(out)){const pages=await pdfPagesText(d);if(!pages.some(p=>p.trim()))throw Error('Este PDF não contém texto extraível. Para PDFs escaneados é necessário OCR.');
+if(out==='txt')blob=new Blob([pages.map((p,i)=>'--- Página '+(i+1)+' ---\n'+p).join('\n\n')],{type:'text/plain;charset=utf-8'});if(out==='csv'){const lines=pages.flatMap(p=>p.split('\n').filter(Boolean).map(x=>[x]));blob=new Blob(['\uFEFF'+XLSX.utils.sheet_to_csv(XLSX.utils.aoa_to_sheet(lines))],{type:'text/csv;charset=utf-8'})}
 if(out==='docx')blob=await createWordDocument(pages);
 if(out==='xlsx'){if(!window.XLSX)throw Error('Biblioteca Excel indisponível.');const wb=XLSX.utils.book_new();pages.forEach((p,i)=>{const rows=p.split('\n').filter(Boolean).map(s=>[s.trim()]);XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows.length?rows:[['']]),'Página '+(i+1))});blob=new Blob([XLSX.write(wb,{bookType:'xlsx',type:'array'})],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}}
-else if(out==='png'||out==='jpeg'){const page=await d.getPage(1),viewport=page.getViewport({scale:2});if(viewport.width*viewport.height>35000000)throw Error('Página muito grande para renderizar.');const canvas=document.createElement('canvas');canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);await page.render({canvasContext:ctx,viewport}).promise;blob=await new Promise((resolve,reject)=>canvas.toBlob(x=>x?resolve(x):reject(Error('Falha ao criar imagem.')),'image/'+out,.94))}
+else if(['png','jpeg','webp'].includes(out)){const page=await d.getPage(1),viewport=page.getViewport({scale:2});if(viewport.width*viewport.height>35000000)throw Error('Página muito grande para renderizar.');const canvas=document.createElement('canvas');canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);await page.render({canvasContext:ctx,viewport}).promise;blob=await new Promise((resolve,reject)=>canvas.toBlob(x=>x?resolve(x):reject(Error('Falha ao criar imagem.')),'image/'+out,.94))}
 else throw Error('Conversão ainda não disponível.')}finally{await d.destroy()}}
 else if(['png','jpg','jpeg','webp'].includes(source)){
 if(out==='pdf'){if(!window.jspdf)throw Error('Biblioteca PDF indisponível.');const im=await asImage(uploaded,'image/jpeg'),url=await new Promise((resolve,reject)=>{const fr=new FileReader();fr.onload=()=>resolve(fr.result);fr.onerror=reject;fr.readAsDataURL(im)});const bmp=await createImageBitmap(uploaded);const orient=bmp.width>bmp.height?'landscape':'portrait';const pdfout=new jspdf.jsPDF({orientation:orient,unit:'pt',format:'a4'});const pw=pdfout.internal.pageSize.getWidth(),ph=pdfout.internal.pageSize.getHeight(),scale=Math.min(pw/bmp.width,ph/bmp.height);pdfout.addImage(url,'JPEG',(pw-bmp.width*scale)/2,(ph-bmp.height*scale)/2,bmp.width*scale,bmp.height*scale);bmp.close();blob=pdfout.output('blob')}
 else if(['png','jpg','jpeg','webp'].includes(out))blob=await asImage(uploaded,out==='jpg'?'image/jpeg':'image/'+out);
 else throw Error('Formato de saída não aceito.')}
+else if(['txt','html','docx','csv','json','xlsx','xls'].includes(source))blob=await convertTextAndData(source,out);
 else throw Error('Formato não reconhecido.');
 if(!blob||!blob.size)throw Error('O arquivo convertido ficou vazio.');download(blob,base+'.'+out);status('Conversão concluída! Seu download foi iniciado.','ok')
 }catch(e){console.error(e);status(e.message||'Não foi possível converter este arquivo.','error')}finally{$('convert').disabled=false}}
