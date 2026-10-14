@@ -167,7 +167,7 @@ function choose(id){mode=MODES.find(m=>m.id===id)||MODES[0];recordToolUsage(mode
 /* Eventos de navegação são registrados em renderNav(). */
 $('pick').addEventListener('click',()=>$('file').click());$('file').addEventListener('change',e=>load(e.target.files[0]));$('clear').addEventListener('click',clear);
 const drop=$('drop');drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('over')});drop.addEventListener('dragleave',()=>drop.classList.remove('over'));drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('over');load(e.dataTransfer.files[0])});
-function download(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.textContent='⬇ Baixar '+name;$('result').replaceChildren(a);$('result').style.display='flex';a.click();setTimeout(()=>URL.revokeObjectURL(url),120000)}
+function download(blob,name){window.CostaExtras?.record(uploaded?.name||'',name,blob.size);const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.textContent='⬇ Baixar '+name;$('result').replaceChildren(a);$('result').style.display='flex';a.click();setTimeout(()=>URL.revokeObjectURL(url),120000)}
 async function pdf(){if(!window.pdfjsLib)throw Error('Biblioteca PDF não carregou. Verifique sua conexão com a internet.');pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';const bytes=await uploaded.arrayBuffer();return pdfjsLib.getDocument({data:new Uint8Array(bytes)}).promise}
 async function pdfPagesText(document){const arr=[];for(let p=1;p<=document.numPages;p++){const page=await document.getPage(p),tc=await page.getTextContent();let lines=[],prev=null;for(const item of tc.items){if(!item.str)continue;const y=Math.round(item.transform[5]);if(prev!==null&&Math.abs(y-prev)>3)lines.push('\n');lines.push(item.str+(item.hasEOL?'\n':' '));prev=y}arr.push(lines.join('').replace(/[ \t]+\n/g,'\n').trim())}return arr}
 function escapeWordXml(v){return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,'')}
@@ -429,4 +429,4 @@ $('signA1').addEventListener('click',async()=>{
 });
 
 $('convert').addEventListener('click',run);renderHomeCards();choose('home');
-</script></body></html>
+</script><script src="./extras.js"></script></body></html>
