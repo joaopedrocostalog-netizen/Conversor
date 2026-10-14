@@ -59,3 +59,9 @@ Esses recursos dependem de bibliotecas externas via CDN. A implementação está
 - **Limitações:** até 30 MB por arquivo; comparação limitada às primeiras 500 linhas de cada documento, de modo a proteger o desempenho. Não compara aparência, imagens ou layout. PDFs escaneados precisam de OCR (não incluído neste comparador).
 
 Implementação em `compare.js`, carregada após `extras.js`. As demais ferramentas continuam disponíveis.
+
+## Proteger e desproteger PDF
+
+Novas ferramentas **Proteger PDF** e **Desproteger PDF** disponíveis no menu Ferramentas e na página Início. Implementadas no `security.js` com a biblioteca `pdfstudio` (qpdf compilado para WebAssembly), carregada sob demanda através de CDN. A função Proteger adiciona **senha de abertura AES-256**, confirmada em dois campos; Desproteger solicita a **senha válida** e gera uma cópia sem criptografia. O arquivo é processado no navegador e o download é local. Não há recuperação de senhas esquecidas nem remoção sem credenciais válidas.
+
+Requisitos: navegador com WebAssembly e acesso aos CDNs `esm.sh` e `cdn.jsdelivr.net`; limite de 100 MB por arquivo. É necessário testar as funções com PDFs reais depois do deploy. Senhas não são gravadas no histórico local.
