@@ -51,3 +51,11 @@ Os formatos são manipulados localmente pelo navegador, com bibliotecas carregad
 - **PDF para XLSX (Tabelas):** reconstrói aproximadamente linhas/colunas a partir de coordenadas de texto extraível (PDF.js). Não realiza OCR e não garante fidelidade de tabelas complexas, mescladas ou digitalizadas.
 
 Esses recursos dependem de bibliotecas externas via CDN. A implementação está no `extras.js` e utiliza o motor já existente no `index.html`. Faça testes em navegador antes de utilizar documentos críticos.
+
+## Modo escuro e comparador de documentos
+
+- **Modo escuro:** botão no cabeçalho para alternar tema claro/escuro. Preferência armazenada no `localStorage` deste navegador.
+- **Comparar documentos:** nova opção no menu lateral e na Home. Compara o conteúdo textual de dois arquivos PDF digital, DOCX, TXT, HTML, CSV, JSON, XLS ou XLSX, destacando linhas adicionadas ou removidas. Diferenças são calculadas localmente no navegador por algoritmo de comparação de linhas, **sem IA** e sem upload a servidor.
+- **Limitações:** até 30 MB por arquivo; comparação limitada às primeiras 500 linhas de cada documento, de modo a proteger o desempenho. Não compara aparência, imagens ou layout. PDFs escaneados precisam de OCR (não incluído neste comparador).
+
+Implementação em `compare.js`, carregada após `extras.js`. As demais ferramentas continuam disponíveis.
