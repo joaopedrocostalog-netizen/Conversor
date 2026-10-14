@@ -8,7 +8,7 @@ const contrast=document.createElement('style');contrast.textContent="body.dark-m
 const toggle=$('themeToggle');let theme='light';try{theme=localStorage.getItem('costalog-theme')||'light'}catch(e){}
 function applyTheme(dark){document.body.classList.toggle('dark-mode',dark);toggle.textContent=dark?'☀ Modo claro':'☾ Modo escuro';toggle.setAttribute('aria-label',dark?'Ativar modo claro':'Ativar modo escuro');try{localStorage.setItem('costalog-theme',dark?'dark':'light')}catch(e){}}
 applyTheme(theme==='dark');toggle.addEventListener('click',()=>applyTheme(!document.body.classList.contains('dark-mode')));
-const box=document.createElement('section');box.className='compare-box';box.id='compareBox';box.hidden=true;box.innerHTML='<h3>⚖️ Comparar documentos</h3><p>Compare textos de dois arquivos PDF, DOCX, TXT, HTML, CSV, JSON, XLS ou XLSX. Não compara imagens ou a formatação visual. PDFs escaneados precisam de OCR.</p><div class="compare-files"><label>Documento original<input id="docA" type="file" accept=".pdf,.docx,.txt,.html,.csv,.json,.xls,.xlsx"></label><label>Documento atualizado<input id="docB" type="file" accept=".pdf,.docx,.txt,.html,.csv,.json,.xls,.xlsx"></label></div><div class="compare-previews"><div><h4>Prévia do original</h4><div id="previewA" class="compare-line-preview">Selecione o documento original.</div></div><div><h4>Prévia do atualizado</h4><div id="previewB" class="compare-line-preview">Selecione o documento atualizado.</div></div></div><button id="compareGo">Comparar arquivos</button><div id="compareStatus" role="status" aria-live="polite"></div><div id="compareResult" class="compare-results"></div>';
+const box=document.createElement('section');box.className='compare-box';box.id='compareBox';box.hidden=true;box.innerHTML='<h3>⚖️ Comparar documentos</h3><p>Compare textos de dois arquivos PDF, DOCX, TXT, HTML, CSV, JSON, XLS ou XLSX. Não compara imagens ou a formatação visual. PDFs escaneados precisam de OCR.</p><div class="compare-files"><label>Documento original<input id="docA" type="file" accept=".pdf,.docx,.txt,.html,.csv,.json,.xls,.xlsx"></label><label>Documento atualizado<input id="docB" type="file" accept=".pdf,.docx,.txt,.html,.csv,.json,.xls,.xlsx"></label></div><div class="compare-previews"><div><h4>Prévia do original</h4><div id="previewA" class="compare-line-preview">Selecione o documento original.</div></div><div><h4>Prévia do atualizado</h4><div id="previewB" class="compare-line-preview">Selecione o documento atualizado.</div></div></div><div id="compareStatus" role="status" aria-live="polite"></div><div id="compareResult" class="compare-results"></div>';
 $('uploadArea').after(box);
 const oldChoose=choose;choose=function(id){oldChoose(id);box.hidden=id!=='compare';if(id==='compare'){$('uploadArea').hidden=true;if($('batchBox'))$('batchBox').hidden=true;if($('previewBox'))$('previewBox').hidden=true}};choose(mode.id);
 async function readText(file){const extn=file.name.split('.').pop().toLowerCase();
@@ -32,6 +32,21 @@ try{const page=await d.getPage(1),v=page.getViewport({scale:1.1}),canvas=documen
 }
 $('docA').addEventListener('change',()=>renderDocPreview('docA','previewA'));
 $('docB').addEventListener('change',()=>renderDocPreview('docB','previewB'));
+let comparisonSequence=0;
 function diff(a,b){const aa=a.split(/\r?\n/).slice(0,500),bb=b.split(/\r?\n/).slice(0,500),m=aa.length,n=bb.length,dp=Array.from({length:m+1},()=>new Uint16Array(n+1));for(let i=m-1;i>=0;i--)for(let j=n-1;j>=0;j--)dp[i][j]=aa[i]===bb[j]?dp[i+1][j+1]+1:Math.max(dp[i+1][j],dp[i][j+1]);let i=0,j=0,result=[];while(i<m||j<n){if(i<m&&j<n&&aa[i]===bb[j]){result.push(['equal',aa[i]]);i++;j++}else if(j<n&&(i===m||dp[i][j+1]>=dp[i+1][j]))result.push(['add',bb[j++]]);else result.push(['del',aa[i++]])}return {result,limited:a.split(/\r?\n/).length>500||b.split(/\r?\n/).length>500}}
-$('compareGo').addEventListener('click',async()=>{const a=$('docA').files[0],b=$('docB').files[0],status=$('compareStatus'),btn=$('compareGo');if(!a||!b){status.textContent='Selecione ambos os arquivos.';return}if(a.size>30e6||b.size>30e6){status.textContent='Limite de 30 MB por arquivo.';return}btn.disabled=true;status.textContent='Comparando...';$('compareResult').replaceChildren();try{const [x,y]=await Promise.all([readText(a),readText(b)]);if(!x.trim()&&!y.trim())throw Error('Nenhum texto extraível.');const result=diff(x,y),frag=document.createDocumentFragment();let added=0,removed=0;for(const [kind,line] of result.result){const el=document.createElement('div');el.className='diff-line '+kind;el.textContent=(kind==='add'?'+ ':kind==='del'?'- ':'  ')+line;frag.appendChild(el);if(kind==='add')added++;if(kind==='del')removed++}$('compareResult').appendChild(frag);status.textContent='Linhas adicionadas: '+added+' | removidas: '+removed+(result.limited?' | Primeiras 500 linhas por arquivo.':'')}catch(e){status.textContent='Erro: '+e.message}finally{btn.disabled=false}});
+async function compareAutomatically(){
+const sequence=++comparisonSequence,a=$('docA').files[0],b=$('docB').files[0],status=$('compareStatus');
+$('compareResult').replaceChildren();
+if(!a||!b){status.textContent='Selecione os dois documentos para ver as diferenças automaticamente.';return}
+if(a.size>30e6||b.size>30e6){status.textContent='Limite de 30 MB por arquivo.';return}
+status.textContent='Comparando documentos...';
+try{const [x,y]=await Promise.all([readText(a),readText(b)]);if(sequence!==comparisonSequence)return;if(!x.trim()&&!y.trim())throw Error('Nenhum texto extraível.');
+const result=diff(x,y),frag=document.createDocumentFragment();let added=0,removed=0;
+for(const [kind,line] of result.result){const el=document.createElement('div');el.className='diff-line '+kind;el.textContent=(kind==='add'?'+ ':kind==='del'?'- ':'  ')+line;frag.appendChild(el);if(kind==='add')added++;if(kind==='del')removed++}
+$('compareResult').appendChild(frag);
+status.textContent='Linhas adicionadas: '+added+' | removidas: '+removed+(result.limited?' | Primeiras 500 linhas por arquivo.':'');
+}catch(e){if(sequence===comparisonSequence)status.textContent='Erro: '+e.message}
+}
+$('docA').addEventListener('change',compareAutomatically);
+$('docB').addEventListener('change',compareAutomatically);
 })();
