@@ -20,13 +20,46 @@
 .home-card-controls{top:8px;right:8px;gap:3px}
 .home-card-controls button{font-size:14px;padding:5px}
 @media(max-width:560px){.home-tools{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.home-card{min-height:165px;padding:12px}.home-card h3{font-size:14px}}
+
+/* Navegação superior COSTALOG inspirada em menus de ferramentas amplos */
+.shell{display:block}.side{display:none!important}.main{width:100%;min-height:100vh}
+.top{height:65px;position:sticky;top:0;z-index:35;background:#fff;justify-content:flex-start;gap:14px;padding:0 23px}
+.top-brand{display:flex;align-items:center;gap:9px;border:0;background:transparent;white-space:nowrap;color:#171717;font-size:20px;font-weight:900;padding:0 8px 0 0}
+.top-brand img{height:42px;width:48px;object-fit:contain}.mega-anchor{flex:none}
+.tools-toggle{border:1px solid #dedee5;background:#fff;color:#181818;padding:12px 16px;border-radius:8px;font-weight:700}
+.tools-toggle[aria-expanded=true]{background:#fff1f2;border-color:#e30613;color:#ba0010}
+.quick-nav{display:flex;align-items:center;gap:4px;flex:1;min-width:0}
+.quick-nav button{border:0;background:transparent;padding:12px 9px;white-space:nowrap;color:#303037;font-size:13px}
+.quick-nav button:hover{color:#e30613}
+.top .repo-link{white-space:nowrap}.top #themeToggle{margin-left:0;margin-right:0;white-space:nowrap}
+.visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.mega-menu{position:fixed;top:65px;left:0;right:0;z-index:34;background:#fff;border-bottom:1px solid #e6e6ea;box-shadow:0 20px 28px #0000001c;max-height:calc(100vh - 65px);overflow:auto;padding:27px 22px 35px}
+.mega-menu[hidden]{display:none!important}
+.mega-columns{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:24px;max-width:1600px;margin:0 auto}
+.mega-column{min-width:0}.mega-section{margin:0 0 24px}
+.mega-heading{font-size:12px;color:#777985;margin:0 0 11px;font-weight:700}
+.mega-tool{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;text-align:left;padding:7px 3px;border-radius:7px;font-size:13px;color:#21212a;line-height:1.3}
+.mega-tool:hover{background:#fff1f2;color:#d40012}
+.mega-icon{width:26px;height:26px;display:grid;place-items:center;border-radius:5px;background:#f2e8ea;color:#d40012;font-size:12px;font-weight:800;flex:none}
+.mega-column:nth-child(2) .mega-icon{background:#e9f0ff;color:#427bce}
+.mega-column:nth-child(3) .mega-icon{background:#e5f3e9;color:#248a50}
+.mega-column:nth-child(4) .mega-icon{background:#f0eafa;color:#8658c4}
+.mega-column:nth-child(5) .mega-icon{background:#e3f5f5;color:#138b94}
+body.dark-mode .top,body.dark-mode .mega-menu{background:#202126!important;color:#f0f0f2;border-color:#444650}
+body.dark-mode .top-brand,body.dark-mode .tools-toggle,body.dark-mode .quick-nav button,body.dark-mode .mega-tool{background:transparent;color:#f1f1f4}
+body.dark-mode .mega-heading{color:#b3b5bf}body.dark-mode .mega-tool:hover{background:#383036;color:white}
+body.dark-mode .tools-toggle{border-color:#5e616c}body.dark-mode .mega-menu{box-shadow:0 20px 30px #0006}
+.content{max-width:1390px}
+@media(max-width:1150px){.quick-nav button:nth-last-child(-n+2){display:none}.mega-columns{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:780px){.top{gap:8px;padding:0 10px}.top-brand strong{font-size:14px}.top-brand img{width:35px;height:36px}.tools-toggle{padding:10px;font-size:12px}.quick-nav{display:none}.top .repo-link{display:none}.mega-columns{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.mega-menu{padding:16px}.top #themeToggle{margin-left:auto}}
+@media(max-width:450px){.mega-columns{grid-template-columns:1fr 1fr}.mega-tool{font-size:12px;gap:6px}}
 </style>
 </head>
 <body><div class="shell"><aside class="side">
 <div class="brand"><img src="./logo-costalog-sem-fundo-1024x876.png" alt="Logo COSTALOG"><div><strong>COSTALOG</strong><small>A LOGÍSTICA IDEAL</small></div></div>
 <div class="side-label">FERRAMENTAS DE CONVERSÃO</div>
 <nav class="nav" id="nav"></nav><div class="side-footer">COSTALOG • Conversor de arquivos</div></aside>
-<main class="main"><header class="top"><span id="currentTitle">Conversor de Arquivos</span><button id="themeToggle" type="button" title="Alternar modo escuro" aria-label="Ativar modo escuro">☾ Modo escuro</button><a href="https://github.com/joaopedrocostalog-netizen/Conversor" target="_blank" rel="noopener">↗ Repositório</a></header>
+<main class="main"><header class="top"><button class="top-brand" type="button" id="topHome" aria-label="Ir para início"><img src="./logo-costalog-sem-fundo-1024x876.png" alt=""><strong>COSTALOG</strong></button><div class="mega-anchor"><button id="toolsToggle" class="tools-toggle" type="button" aria-expanded="false" aria-controls="megaMenu">▦ &nbsp; Ferramentas <span aria-hidden="true">⌄</span></button></div><nav class="quick-nav" aria-label="Acesso rápido"><button type="button" data-quick="pdf-word">Converter</button><button type="button" data-quick="pdf-excel">PDF para Excel</button><button type="button" data-quick="images">Imagens</button><button type="button" data-quick="compare">Comparar</button><button type="button" data-quick="analysis">Análise de PDF</button></nav><span id="currentTitle" class="visually-hidden">Conversor de Arquivos</span><button id="themeToggle" type="button" title="Alternar modo escuro" aria-label="Ativar modo escuro">☾ Modo escuro</button><a class="repo-link" href="https://github.com/joaopedrocostalog-netizen/Conversor" target="_blank" rel="noopener">↗ Repositório</a></header><div id="megaMenu" class="mega-menu" hidden><div id="megaColumns" class="mega-columns"></div></div>
 <div class="content"><span class="pill"><span class="dot"></span><span id="eyebrow">CONVERSOR DE ARQUIVOS</span></span>
 <h1 id="headline">Converta seus <em>arquivos</em> facilmente.</h1><p class="sub" id="subtitle">Transforme documentos e imagens em outros formatos, diretamente no navegador.</p>
 <div id="homeSearchWrap" class="home-search" hidden><label for="homeSearch">Pesquisar conversões</label><div class="home-search-row"><span aria-hidden="true">⌕</span><input id="homeSearch" type="search" placeholder="Pesquisar PDF, DOCX, JPG, XLSX..." autocomplete="off"><button id="clearHomeSearch" type="button" aria-label="Limpar pesquisa">Limpar</button></div><div class="home-filters" role="group" aria-label="Filtrar ferramentas"><button id="viewAll" class="selected" type="button">Todas</button><button id="viewFavorites" type="button">★ Favoritas</button><button id="viewHidden" type="button">Ocultadas</button></div><p id="homeSearchCount" class="home-search-count" role="status" aria-live="polite"></p></div><section id="homeCards" class="home-tools" hidden aria-label="Ferramentas de conversão"></section><p id="homeEmpty" class="home-empty" hidden>Nenhuma ferramenta encontrada. Experimente outro formato.</p><section class="drop-outer" id="uploadArea"><div id="maintenanceNotice" hidden style="text-align:center;padding:45px 16px"><div style="font-size:42px;margin-bottom:12px">🚧</div><h2 style="margin:0 0 10px">Em manutenção</h2><p style="color:#666;line-height:1.6">Esta funcionalidade estará disponível em breve.<br>Estamos preparando melhorias para você.</p></div><div class="drop" id="drop"><div class="big" id="dropIcon">📂</div><h2 id="dropTitle">Arraste um arquivo para o centro</h2><p id="dropHelp">Solte aqui para carregar ou escolha o arquivo no computador</p><button class="primary" id="pick">Escolher arquivo</button><input id="file" type="file" hidden></div></section>
@@ -442,4 +475,29 @@ $('signA1').addEventListener('click',async()=>{
 });
 
 $('convert').addEventListener('click',run);renderHomeCards();choose('home');
+
+(function setupMegaMenu(){
+const toggle=document.getElementById('toolsToggle'),menu=document.getElementById('megaMenu'),columns=document.getElementById('megaColumns');
+const blocks=[
+[{heading:'Converter PDF',ids:['pdf-word','pdf-excel','pdf-tables','pdf-text','pdf-csv']},{heading:'PDF para imagem',ids:['pdf-png','pdf-jpeg','pdf-webp']}],
+[{heading:'Imagens',ids:['image-pdf','images']},{heading:'Documentos Word',ids:['docx-txt','docx-html','txt-docx']}],
+[{heading:'Excel e dados',ids:['sheet-csv','sheet-json','sheet-pdf','csv-xlsx','csv-json','json-csv','json-xlsx']}],
+[{heading:'Textos e HTML',ids:['txt-pdf','txt-html','html-txt','html-pdf']}],
+[{heading:'Ferramentas',ids:['compare','analysis','sign']},{heading:'Acesso rápido',ids:['home']}]
+];
+function close(){menu.hidden=true;toggle.setAttribute('aria-expanded','false')}
+function open(){menu.hidden=false;toggle.setAttribute('aria-expanded','true')}
+for(const sections of blocks){
+const col=document.createElement('div');col.className='mega-column';
+for(const section of sections){const wrap=document.createElement('section');wrap.className='mega-section';const title=document.createElement('h3');title.className='mega-heading';title.textContent=section.heading;wrap.appendChild(title);
+for(const id of section.ids){const m=MODES.find(x=>x.id===id);if(!m)continue;const button=document.createElement('button');button.className='mega-tool';button.type='button';const icon=document.createElement('span');icon.className='mega-icon';icon.textContent=m.icon;const name=document.createElement('span');name.textContent=m.label;button.append(icon,name);button.addEventListener('click',()=>{close();choose(id)});wrap.appendChild(button)}col.appendChild(wrap)}
+columns.appendChild(col)
+}
+toggle.addEventListener('click',()=>menu.hidden?open():close());
+document.getElementById('topHome').addEventListener('click',()=>{close();choose('home')});
+document.querySelectorAll('[data-quick]').forEach(el=>el.addEventListener('click',()=>{close();choose(el.dataset.quick)}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+document.addEventListener('click',e=>{if(!menu.hidden&&!menu.contains(e.target)&&!toggle.contains(e.target))close()});
+})();
+
 </script><script src="./extras.js"></script><script src="./compare.js"></script></body></html>
