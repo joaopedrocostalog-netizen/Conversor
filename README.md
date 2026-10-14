@@ -29,3 +29,16 @@ A ferramenta permite importar imagem de assinatura (PNG, JPG ou WebP), desenhar 
 ## Assinatura digital com certificado ICP-Brasil A1
 
 Nova seção em **Assinar PDF**: envia o PDF, certificado PKCS#12 (.pfx/.p12) e senha para uma API Python **sob seu controle**, configurada manualmente. Veja instruções em [`backend/README.md`](backend/README.md). **GitHub Pages não executa esse backend**; sem URL de servidor em HTTPS, a função A1 não estará operacional. A implementação gera assinatura criptográfica, mas a conformidade ICP-Brasil e a validade do certificado devem ser verificadas com validador de confiança. Nunca envie certificado e senha a serviços desconhecidos. **Ainda não validado ponta a ponta com certificado real.**
+
+## Categorias e formatos adicionais
+
+O menu lateral agora tem grupos expansíveis de **PDF**, **Imagens**, **Documentos e texto**, e **Planilhas e dados**.
+
+- PDF → DOCX/XLSX/TXT/CSV, PNG/JPEG/WebP (imagens só da primeira página).
+- PNG/JPG/JPEG/WebP entre si e para PDF.
+- DOCX → TXT/HTML: apenas texto e parágrafos simples; formatação e imagens podem ser perdidas.
+- TXT → DOCX/PDF/HTML; HTML → TXT/PDF: conversão de texto, **não renderização fiel** de páginas HTML.
+- XLSX/XLS → CSV/JSON/PDF: exporta **somente a primeira aba**; PDF com linhas de texto limitadas, sem preservar a formatação das células.
+- CSV → XLSX/JSON; JSON → CSV/XLSX: JSON deve ser array de objetos (ou objeto simples); estruturas aninhadas não são preservadas com fidelidade.
+
+Os formatos são manipulados localmente pelo navegador, com bibliotecas carregadas via CDN. Nem todas as combinações imagináveis são suportadas. Para PDF escaneado, a extração de texto exige OCR (Análise de PDF segue em manutenção). Arquivos complexos podem perder estilos, imagens ou estrutura.
