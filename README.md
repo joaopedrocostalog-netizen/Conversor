@@ -65,3 +65,7 @@ Implementação em `compare.js`, carregada após `extras.js`. As demais ferramen
 Novas ferramentas **Proteger PDF** e **Desproteger PDF** disponíveis no menu Ferramentas e na página Início. Implementadas no `security.js` com a biblioteca `pdfstudio` (qpdf compilado para WebAssembly), carregada sob demanda através de CDN. A função Proteger adiciona **senha de abertura AES-256**, confirmada em dois campos; Desproteger solicita a **senha válida** e gera uma cópia sem criptografia. O arquivo é processado no navegador e o download é local. Não há recuperação de senhas esquecidas nem remoção sem credenciais válidas.
 
 Requisitos: navegador com WebAssembly e acesso aos CDNs `esm.sh` e `cdn.jsdelivr.net`; limite de 100 MB por arquivo. É necessário testar as funções com PDFs reais depois do deploy. Senhas não são gravadas no histórico local.
+
+## Digitalizar PDF (a partir de um PDF)
+
+A ferramenta **Digitalizar PDF** transforma cada página de um PDF existente em uma imagem JPEG incorporada a um novo PDF, com resolução selecionável (compacta, equilibrada ou alta). Todas as páginas são processadas localmente com PDF.js e jsPDF, preservando aproximadamente as dimensões e a orientação originais. O documento resultante fica semelhante a um PDF escaneado: **perde a camada de texto selecionável/pesquisável e links**, e **não realiza OCR**. Limites: arquivo original de até 100 MB, máximo 200 páginas e até 24 milhões de pixels por página; memória disponível no dispositivo pode impor limites menores. O novo arquivo é baixado com o sufixo `-digitalizado.pdf`.
