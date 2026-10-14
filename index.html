@@ -46,6 +46,7 @@
 <script>
 'use strict';
 const MODES=[
+{id:'pdf-tables',icon:'▦',label:'PDF para XLSX (Tabelas)',title:'PDF para XLSX (Tabelas)',lead:'Extraia <em>tabelas de PDFs</em>.',sub:'Detecção aproximada de tabelas em PDFs digitais.',accept:'.pdf',outputs:['xlsx']},
 {id:'home',icon:'🏠',label:'Início',title:'Conversor de Arquivos',lead:'Todas as <em>ferramentas</em> em um só lugar.',sub:'Escolha uma ferramenta abaixo para converter seus arquivos.',accept:'.pdf,.png,.jpg,.jpeg,.webp,.txt,.csv,.json,.xlsx,.xls,.docx,.html',outputs:null},
 {id:'pdf-word',icon:'📝',label:'PDF para DOCX',title:'PDF para DOCX',lead:'Converta <em>PDF para DOCX</em>.',sub:'Selecione seu arquivo e escolha a conversão desejada.',accept:'.pdf',outputs:["docx"]},
 {id:'pdf-excel',icon:'📊',label:'PDF para XLSX',title:'PDF para XLSX',lead:'Converta <em>PDF para XLSX</em>.',sub:'Selecione seu arquivo e escolha a conversão desejada.',accept:'.pdf',outputs:["xlsx"]},
@@ -76,6 +77,7 @@ const MODES=[
 const $=id=>document.getElementById(id);let mode=MODES[0],uploaded=null;
 
 const HOME_INFO={
+'pdf-tables':['X','sheet','Extraia tabelas de PDFs digitais e exporte as colunas para XLSX.'],
 'pdf-word':['W','word','Extraia o texto de arquivos PDF e gere documentos DOCX editáveis.'],
 'pdf-excel':['X','sheet','Exporte o conteúdo textual de PDFs para uma planilha XLSX.'],
 'pdf-png':['PNG','image','Transforme a primeira página de um PDF em imagem PNG.'],
@@ -117,7 +119,7 @@ $('homeSearch').addEventListener('input',filterHomeCards);
 $('clearHomeSearch').addEventListener('click',()=>{$('homeSearch').value='';filterHomeCards();$('homeSearch').focus()});
 [['viewAll','all'],['viewFavorites','favorites'],['viewHidden','hidden']].forEach(([id,view])=>$(id).addEventListener('click',()=>{homeView=view;filterHomeCards()}));
 function renderHomeCards(){
- const list=['pdf-word','pdf-excel','pdf-png','pdf-jpeg','pdf-webp','pdf-text','pdf-csv','images','image-pdf','docx-txt','docx-html','txt-pdf','txt-docx','csv-xlsx','json-xlsx','sheet-csv','sheet-pdf','analysis','sign'];
+ const list=['pdf-word','pdf-excel','pdf-tables','pdf-tables','pdf-png','pdf-jpeg','pdf-webp','pdf-text','pdf-csv','images','image-pdf','docx-txt','docx-html','txt-pdf','txt-docx','csv-xlsx','json-xlsx','sheet-csv','sheet-pdf','analysis','sign'];
  $('homeCards').replaceChildren();
  for(const id of list){
  const m=MODES.find(x=>x.id===id),info=HOME_INFO[id],card=document.createElement('article');card.className='home-card';card.dataset.id=id;card.dataset.originalIndex=String(list.indexOf(id));
@@ -230,9 +232,24 @@ if(out==='xlsx'){const book=XLSX.utils.book_new(),sheet=rows?XLSX.utils.aoa_to_s
 throw Error('Conversão indisponível para este formato.');
 }
 
-async function run(){if(!uploaded)return;const out=$('format').value,source=ext(uploaded),base=uploaded.name.replace(/\.[^.]+$/,'');$('convert').disabled=true;$('result').style.display='none';status('Processando arquivo...');try{
+async function extractTablesXlsx(document){
+if(!window.XLSX)throw Error('Biblioteca XLSX indisponível.');
+const wb=XLSX.utils.book_new();
+for(let p=1;p<=document.numPages;p++){
+ const page=await document.getPage(p),items=(await page.getTextContent()).items.filter(i=>i.str&&i.str.trim()&&i.transform);
+ const rows=[],sorted=items.map(i=>({str:i.str.trim(),x:i.transform[4],y:i.transform[5]})).sort((a,b)=>b.y-a.y||a.x-b.x);
+ for(const item of sorted){let row=rows.find(r=>Math.abs(r.y-item.y)<4);if(!row){row={y:item.y,cells:[]};rows.push(row)}row.cells.push(item)}
+ const positions=rows.flatMap(r=>r.cells.map(x=>x.x)).sort((a,b)=>a-b),columns=[];
+ for(const x of positions)if(!columns.some(c=>Math.abs(c-x)<16))columns.push(x);
+ const data=rows.sort((a,b)=>b.y-a.y).map(r=>{const cells=Array(Math.max(1,columns.length)).fill('');for(const item of r.cells.sort((a,b)=>a.x-b.x)){let n=0;for(let i=1;i<columns.length;i++)if(Math.abs(columns[i]-item.x)<Math.abs(columns[n]-item.x))n=i;cells[n]+=(cells[n]?' ':'')+item.str}return cells});
+ XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(data.length?data:[['Sem texto extraível']]),'Página '+p);
+}
+return new Blob([XLSX.write(wb,{bookType:'xlsx',type:'array'})],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}
+async function convertSelectedFile(source,out){
 let blob;
 if(source==='pdf'){const d=await pdf();try{
+if(mode.id==='pdf-tables'&&out==='xlsx')return await extractTablesXlsx(d);
 if(['docx','xlsx','txt','csv'].includes(out)){const pages=await pdfPagesText(d);if(!pages.some(p=>p.trim()))throw Error('Este PDF não contém texto extraível. Para PDFs escaneados é necessário OCR.');
 if(out==='txt')blob=new Blob([pages.map((p,i)=>'--- Página '+(i+1)+' ---\n'+p).join('\n\n')],{type:'text/plain;charset=utf-8'});if(out==='csv'){const lines=pages.flatMap(p=>p.split('\n').filter(Boolean).map(x=>[x]));blob=new Blob(['\uFEFF'+XLSX.utils.sheet_to_csv(XLSX.utils.aoa_to_sheet(lines))],{type:'text/csv;charset=utf-8'})}
 if(out==='docx')blob=await createWordDocument(pages);
@@ -245,6 +262,10 @@ else if(['png','jpg','jpeg','webp'].includes(out))blob=await asImage(uploaded,ou
 else throw Error('Formato de saída não aceito.')}
 else if(['txt','html','docx','csv','json','xlsx','xls'].includes(source))blob=await convertTextAndData(source,out);
 else throw Error('Formato não reconhecido.');
+return blob;
+}
+async function run(){if(!uploaded)return;const out=$('format').value,source=ext(uploaded),base=uploaded.name.replace(/\.[^.]+$/,'');$('convert').disabled=true;$('result').style.display='none';status('Processando arquivo...');try{
+const blob=await convertSelectedFile(source,out);
 if(!blob||!blob.size)throw Error('O arquivo convertido ficou vazio.');download(blob,base+'.'+out);status('Conversão concluída! Seu download foi iniciado.','ok')
 }catch(e){console.error(e);status(e.message||'Não foi possível converter este arquivo.','error')}finally{$('convert').disabled=false}}
 
