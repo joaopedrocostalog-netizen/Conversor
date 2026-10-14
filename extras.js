@@ -5,9 +5,8 @@ const css=document.createElement('style');
 css.textContent='.extra{border:1px solid #e5e5e9;border-radius:14px;padding:20px;margin:20px 0;background:white}.extra[hidden]{display:none}.extra h3{margin:0 0 10px}.extra p{font-size:13px;color:#74747c}.extra .controls{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}.extra input,.extra select,.extra button{padding:10px;border:1px solid #ddd;border-radius:8px;max-width:100%}.extra button{cursor:pointer;background:#fff}.extra .primary{background:#e30613;color:#fff}.extra .result{white-space:pre-wrap;font-size:13px;color:#595960}.extra canvas,.extra img{max-width:100%;height:auto}.extra pre{white-space:pre-wrap;word-break:break-word;max-height:360px;overflow:auto}.extra table{width:100%;border-collapse:collapse;font-size:12px}.extra td,.extra th{border-bottom:1px solid #eee;padding:7px;text-align:left}';
 document.head.appendChild(css);
 const batch=document.createElement('section');batch.className='extra';batch.id='batchBox';batch.innerHTML='<h3>📦 Conversão em lote</h3><p>Selecione até 20 arquivos do tipo compatível com esta ferramenta. Os resultados serão baixados em um ZIP.</p><div class="controls"><input id="batchInput" type="file" multiple aria-label="Arquivos para conversão em lote"><select id="batchOutput"></select><button id="batchGo" class="primary">Converter lote</button></div><div id="batchMessage" class="result" role="status"></div>';
-const prev=document.createElement('section');prev.className='extra';prev.id='previewBox';prev.innerHTML='<h3>👁 Pré-visualização</h3><p>Confira seu arquivo antes de converter. A prévia de PDF mostra a primeira página.</p><input type="file" id="previewInput"><div id="previewResult" class="result">Selecione um arquivo.</div>';
 const hist=document.createElement('section');hist.className='extra';hist.id='historyBox';hist.innerHTML='<h3>🕘 Histórico de conversões</h3><p>Somente nomes, tamanho e data são salvos neste navegador, nunca o conteúdo dos arquivos.</p><button id="historyClear">Limpar histórico</button><div id="historyResult"></div>';
-$('uploadArea').after(batch,prev);$('homeCards').after(hist);
+$('uploadArea').after(batch);$('homeCards').after(hist);
 const KEY='costalog-conversion-history-v1';let events=[];
 try{const x=JSON.parse(localStorage.getItem(KEY)||'[]');if(Array.isArray(x))events=x.slice(0,100)}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(events))}catch(e){}}
@@ -15,7 +14,7 @@ function historyRender(){const root=$('historyResult');root.replaceChildren();if
 window.CostaExtras={record(src,name,size){events.unshift({t:new Date().toISOString(),src,name,size});events=events.slice(0,100);save();historyRender()}};
 $('historyClear').addEventListener('click',()=>{if(confirm('Limpar histórico local?')){events=[];save();historyRender()}});historyRender();
 const originalChoose=choose;
-choose=function(id){originalChoose(id);const active=!['home','analysis','sign'].includes(mode.id);batch.hidden=!active;prev.hidden=!active;hist.hidden=mode.id!=='home';if(active){$('batchInput').accept=mode.accept;$('previewInput').accept=mode.accept;$('batchOutput').replaceChildren();for(const type of outputTypes()){const o=document.createElement('option');o.value=type;o.textContent=type.toUpperCase();$('batchOutput').appendChild(o)}}};
+choose=function(id){originalChoose(id);const active=!['home','analysis','sign'].includes(mode.id);batch.hidden=!active;hist.hidden=mode.id!=='home';if(active){$('batchInput').accept=mode.accept;$('batchOutput').replaceChildren();for(const type of outputTypes()){const o=document.createElement('option');o.value=type;o.textContent=type.toUpperCase();$('batchOutput').appendChild(o)}}};
 choose('home');
 $('batchGo').addEventListener('click',async()=>{
 const files=Array.from($('batchInput').files),out=$('batchOutput').value,btn=$('batchGo');if(!files.length){$('batchMessage').textContent='Selecione arquivos.';return}
@@ -27,16 +26,5 @@ try{for(let i=0;i<files.length;i++){const file=files[i];$('batchMessage').textCo
 if(names.size){const result=await zip.generateAsync({type:'blob'}),url=URL.createObjectURL(result),link=document.createElement('a');link.href=url;link.download='costalog-lote.zip';link.click();setTimeout(()=>URL.revokeObjectURL(url),60000)}
 $('batchMessage').textContent=names.size+' arquivo(s) convertido(s).'+(errors.length?'\nFalhas: '+errors.join('; '):'');
 }finally{uploaded=prior;btn.disabled=false}
-});
-let priorUrl=null;
-$('previewInput').addEventListener('change',async()=>{
-const file=$('previewInput').files[0],area=$('previewResult');if(priorUrl){URL.revokeObjectURL(priorUrl);priorUrl=null}if(!file)return;area.textContent='Carregando prévia...';
-try{const kind=ext(file);
-if(['png','jpg','jpeg','webp'].includes(kind)){priorUrl=URL.createObjectURL(file);const img=document.createElement('img');img.src=priorUrl;img.alt=file.name;area.replaceChildren(img)}
-else if(kind==='pdf'){const d=await pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;try{const page=await d.getPage(1),viewport=page.getViewport({scale:1.2}),canvas=document.createElement('canvas');canvas.width=viewport.width;canvas.height=viewport.height;await page.render({canvasContext:canvas.getContext('2d'),viewport}).promise;area.replaceChildren(canvas)}finally{await d.destroy()}}
-else if(['txt','json','csv','html'].includes(kind)){const pre=document.createElement('pre');pre.textContent=(await file.text()).slice(0,20000);area.replaceChildren(pre)}
-else if(['xlsx','xls'].includes(kind)){const wb=XLSX.read(await file.arrayBuffer(),{type:'array'}),pre=document.createElement('pre');pre.textContent=XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]]).slice(0,20000);area.replaceChildren(pre)}
-else area.textContent='Prévia ainda não disponível para este tipo de arquivo.';
-}catch(e){area.textContent='Erro ao visualizar: '+e.message}
 });
 })();
