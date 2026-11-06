@@ -9,6 +9,7 @@ from pathlib import Path
 from urllib.parse import quote
 
 import fitz
+from starlette.background import BackgroundTask
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -104,9 +105,8 @@ async def convert_pdf_to_docx(pdf: UploadFile = File(...)):
             media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             filename=download_name,
             headers={"Cache-Control": "no-store"},
-            background=None,
+            background=BackgroundTask(__import__("shutil").rmtree, temp_dir, ignore_errors=True),
         )
-    finally:
-        # FileResponse streams after the endpoint returns; its file is retained
-        # in the temporary directory for the duration of the response.
-        pass
+    except HTTPException:
+        __import__("shutil").rmtree(temp_dir, ignore_errors=True)
+        raise
