@@ -242,7 +242,7 @@ const body=[],pageWidth=10500,margin=850,usableWidth=pageWidth-margin*2;
 const esc=escapeWordXml;
 function runXml(text,fontSize,bold,italic,fontFamily){
 const half=Math.max(12,Math.min(144,Math.round((fontSize||10)*2)));
-const family=String(fontFamily||"Arial").replace(/[^\\w\\s-]/g,"").slice(0,48)||"Arial";
+const family=String(fontFamily||"Arial").replace(/[^\w\s-]/g,"").slice(0,48)||"Arial";
 return '<w:r><w:rPr><w:rFonts w:ascii="'+esc(family)+'" w:hAnsi="'+esc(family)+'" w:eastAsia="'+esc(family)+'"/><w:sz w:val="'+half+'"/>'+(bold?'<w:b/>':'')+(italic?'<w:i/>':'')+'</w:rPr><w:t xml:space="preserve">'+esc(text)+'</w:t></w:r>';
 }
 function paragraphXml(text,fontSize,bold,italic,after,fontFamily,before){
