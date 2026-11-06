@@ -383,7 +383,14 @@ async function convertSelectedFile(source,out){
 let blob;
 if(source==='pdf'){const d=await pdf();try{
 if(mode.id==='pdf-tables'&&out==='xlsx')return await extractTablesXlsx(d);
-if(['docx','xlsx','txt','csv'].includes(out)){const pages=await pdfPagesText(d);if(!pages.some(p=>p.trim()))throw Error('Este PDF não contém texto extraível. Para PDFs escaneados é necessário OCR.');
+if(out==='docx'){
+const form=new FormData();form.append('pdf',uploaded,uploaded.name);
+let response;
+try{response=await fetch('https://costalog-pdf-word.onrender.com/convert/pdf-to-docx',{method:'POST',body:form})}
+catch(err){throw Error('Não foi possível conectar ao serviço PDF → Word. Tente novamente em instantes.')}
+if(!response.ok){let message='Falha ao converter PDF para Word.';try{const detail=await response.json();message=detail.detail||message}catch{}throw Error(message)}
+blob=await response.blob();
+}else if(['xlsx','txt','csv'].includes(out)){const pages=await pdfPagesText(d);if(!pages.some(p=>p.trim()))throw Error('Este PDF não contém texto extraível. Para PDFs escaneados é necessário OCR.');
 if(out==='txt')blob=new Blob([pages.map((p,i)=>'--- Página '+(i+1)+' ---\n'+p).join('\n\n')],{type:'text/plain;charset=utf-8'});if(out==='csv'){const lines=pages.flatMap(p=>p.split('\n').filter(Boolean).map(x=>[x]));blob=new Blob(['\uFEFF'+XLSX.utils.sheet_to_csv(XLSX.utils.aoa_to_sheet(lines))],{type:'text/csv;charset=utf-8'})}
 if(out==='docx')blob=await createWordDocumentFromPdfPages(d);
 if(out==='xlsx'){if(!window.XLSX)throw Error('Biblioteca Excel indisponível.');const wb=XLSX.utils.book_new();pages.forEach((p,i)=>{const rows=p.split('\n').filter(Boolean).map(s=>[s.trim()]);XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows.length?rows:[['']]),'Página '+(i+1))});blob=new Blob([XLSX.write(wb,{bookType:'xlsx',type:'array'})],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}}
