@@ -240,12 +240,13 @@ zip.file('[Content_Types].xml','<?xml version="1.0" encoding="UTF-8" standalone=
 zip.file('_rels/.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
 const body=[],pageWidth=10500,margin=850,usableWidth=pageWidth-margin*2;
 const esc=escapeWordXml;
-function runXml(text,fontSize,bold,italic){
-const half=Math.max(16,Math.min(72,Math.round((fontSize||10)*2)));
-return '<w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="'+half+'"/>'+(bold?'<w:b/>':'')+(italic?'<w:i/>':'')+'</w:rPr><w:t xml:space="preserve">'+esc(text)+'</w:t></w:r>';
+function runXml(text,fontSize,bold,italic,fontFamily){
+const half=Math.max(12,Math.min(144,Math.round((fontSize||10)*2)));
+const family=String(fontFamily||"Arial").replace(/[^\\w\\s-]/g,"").slice(0,48)||"Arial";
+return '<w:r><w:rPr><w:rFonts w:ascii="'+esc(family)+'" w:hAnsi="'+esc(family)+'" w:eastAsia="'+esc(family)+'"/><w:sz w:val="'+half+'"/>'+(bold?'<w:b/>':'')+(italic?'<w:i/>':'')+'</w:rPr><w:t xml:space="preserve">'+esc(text)+'</w:t></w:r>';
 }
-function paragraphXml(text,fontSize,bold,italic,after){
-return '<w:p><w:pPr><w:spacing w:before="0" w:after="'+(after??35)+'" w:line="240" w:lineRule="auto"/></w:pPr>'+runXml(text,fontSize,bold,italic)+'</w:p>';
+function paragraphXml(text,fontSize,bold,italic,after,fontFamily,before){
+return '<w:p><w:pPr><w:spacing w:before="'+(before??0)+'" w:after="'+(after??35)+'" w:line="240" w:lineRule="auto"/></w:pPr>'+runXml(text,fontSize,bold,italic,fontFamily)+'</w:p>';
 }
 function lineTableXml(cells){
 const starts=cells.map(cell=>Math.max(margin,Math.min(margin+usableWidth,Math.round(cell.start*20))));
@@ -255,16 +256,21 @@ const total=adjusted.reduce((a,b)=>a+b,0);
 for(let i=0;i<adjusted.length;i++)adjusted[i]=Math.round(adjusted[i]*usableWidth/total);
 adjusted[adjusted.length-1]+=usableWidth-adjusted.reduce((a,b)=>a+b,0);
 const grid=adjusted.map(w=>'<w:gridCol w:w="'+w+'"/>').join('');
-const tcs=cells.map((cell,i)=>'<w:tc><w:tcPr><w:tcW w:w="'+adjusted[i]+'" w:type="dxa"/><w:vAlign w:val="center"/><w:tcMar><w:top w:w="35" w:type="dxa"/><w:bottom w:w="35" w:type="dxa"/><w:start w:w="45" w:type="dxa"/><w:end w:w="45" w:type="dxa"/></w:tcMar></w:tcPr>'+paragraphXml(cell.text,cell.fontSize,cell.bold,cell.italic,0)+'</w:tc>').join('');
+const tcs=cells.map((cell,i)=>'<w:tc><w:tcPr><w:tcW w:w="'+adjusted[i]+'" w:type="dxa"/><w:vAlign w:val="center"/><w:tcMar><w:top w:w="0" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:start w:w="45" w:type="dxa"/><w:end w:w="45" w:type="dxa"/></w:tcMar></w:tcPr>'+paragraphXml(cell.text,cell.fontSize,cell.bold,cell.italic,0,cell.fontFamily,cell.before)+'</w:tc>').join('');
 return '<w:tbl><w:tblPr><w:tblW w:w="'+usableWidth+'" w:type="dxa"/><w:tblLayout w:type="fixed"/><w:tblBorders><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/><w:insideH w:val="nil"/><w:insideV w:val="nil"/></w:tblBorders><w:tblCellMar><w:top w:w="25" w:type="dxa"/><w:bottom w:w="25" w:type="dxa"/><w:start w:w="35" w:type="dxa"/><w:end w:w="35" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid>'+grid+'</w:tblGrid><w:tr>'+tcs+'</w:tr></w:tbl>';
 }
 for(let pageNo=1;pageNo<=pdfDocument.numPages;pageNo++){
  const page=await pdfDocument.getPage(pageNo);
  const textContent=await page.getTextContent({includeMarkedContent:false});
+ const styles=textContent.styles||{};
+ const pageView=page.view||[0,0,595,842];
  const items=textContent.items.filter(item=>item.str&&item.str.trim()).map(item=>{
   const x=Number(item.transform?.[4]||0),y=Number(item.transform?.[5]||0);
   const size=Math.abs(Number(item.transform?.[3]||item.height||10))||10;
-  return {text:item.str,x,y,width:Math.max(0,Number(item.width)||0),size,fontName:String(item.fontName||''),bold:/bold|black|heavy|semibold|demi/i.test(String(item.fontName||'')),italic:/italic|oblique/i.test(String(item.fontName||''))};
+  const fontName=String(item.fontName||"");
+  const style=styles[fontName]||{};
+  const family=String(style.fontFamily||fontName||"Arial");
+  return {text:item.str,x,y,width:Math.max(0,Number(item.width)||0),size,fontName,fontFamily:family,bold:/bold|black|heavy|semibold|demi/i.test(fontName),italic:/italic|oblique/i.test(fontName)};
  }).sort((a,b)=>b.y-a.y||a.x-b.x);
  const lines=[];
  for(const item of items){
@@ -279,19 +285,23 @@ for(let pageNo=1;pageNo<=pdfDocument.numPages;pageNo++){
   for(const item of line.items){
    const previous=cells[cells.length-1];
    const gap=previous?item.x-(previous.end):0;
-   const threshold=Math.max(13,Math.min(25,item.size*1.8));
+   const threshold=Math.max(2.5,Math.min(5,item.size*.35));
    if(previous&&gap<=threshold){
     previous.text+=(gap>Math.max(1,item.size*.12)?' ':'')+item.text;
     previous.end=Math.max(previous.end,item.x+item.width);
     previous.fontSize=Math.max(previous.fontSize,item.size);
     previous.bold=previous.bold||item.bold;previous.italic=previous.italic||item.italic;
+    if(previous.fontFamily!==item.fontFamily)previous.fontFamily=item.fontFamily;
    }else{
-    cells.push({start:Math.max(0,item.x),end:item.x+item.width,text:item.text,fontSize:item.size,bold:item.bold,italic:item.italic});
+    cells.push({start:Math.max(0,item.x),end:item.x+item.width,text:item.text,fontSize:item.size,bold:item.bold,italic:item.italic,fontFamily:item.fontFamily});
    }
   }
   if(!cells.length)continue;
+  const previousLine=lines[lines.indexOf(line)-1];
+  const verticalGap=previousLine?Math.max(0,Math.min(900,Math.round((previousLine.y-line.y)*20-240))):0;
+  cells[0].before=verticalGap;
   if(cells.length===1){
-   body.push(paragraphXml(cells[0].text,cells[0].fontSize,cells[0].bold,cells[0].italic,55));
+   body.push(paragraphXml(cells[0].text,cells[0].fontSize,cells[0].bold,cells[0].italic,55,cells[0].fontFamily,verticalGap));
   }else{
    body.push(lineTableXml(cells));
   }
