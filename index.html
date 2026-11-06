@@ -248,9 +248,11 @@ function paragraphXml(text,fontSize,bold,italic,after){
 return '<w:p><w:pPr><w:spacing w:before="0" w:after="'+(after??35)+'" w:line="240" w:lineRule="auto"/></w:pPr>'+runXml(text,fontSize,bold,italic)+'</w:p>';
 }
 function lineTableXml(cells){
-const widths=cells.map((cell,i)=>Math.max(500,Math.round((i===cells.length-1?usableWidth-cell.start:cells[i+1].start-cell.start))));
-const total=widths.reduce((a,b)=>a+b,0);
-const adjusted=widths.map(w=>Math.round(w*usableWidth/total));
+const starts=cells.map(cell=>Math.max(margin,Math.min(margin+usableWidth,Math.round(cell.start*20))));
+const boundaries=[margin,...starts.slice(1),margin+usableWidth];
+const adjusted=cells.map((cell,i)=>Math.max(350,boundaries[i+1]-boundaries[i]));
+const total=adjusted.reduce((a,b)=>a+b,0);
+for(let i=0;i<adjusted.length;i++)adjusted[i]=Math.round(adjusted[i]*usableWidth/total);
 adjusted[adjusted.length-1]+=usableWidth-adjusted.reduce((a,b)=>a+b,0);
 const grid=adjusted.map(w=>'<w:gridCol w:w="'+w+'"/>').join('');
 const tcs=cells.map((cell,i)=>'<w:tc><w:tcPr><w:tcW w:w="'+adjusted[i]+'" w:type="dxa"/><w:vAlign w:val="center"/><w:tcMar><w:top w:w="35" w:type="dxa"/><w:bottom w:w="35" w:type="dxa"/><w:start w:w="45" w:type="dxa"/><w:end w:w="45" w:type="dxa"/></w:tcMar></w:tcPr>'+paragraphXml(cell.text,cell.fontSize,cell.bold,cell.italic,0)+'</w:tc>').join('');
